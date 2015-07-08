@@ -11,4 +11,6 @@ dependencies:
     shelf_static: any
     grinder: any
     path: "^1.3.5"
-    redstone_mapper_pg: any
+    redstone_mapper_pg:
+        git:
+            git@github.com:dart-targets/redstone_mapper_pg.git

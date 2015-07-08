@@ -18,12 +18,16 @@ studentInfo(String email) {
 
 @app.Route("/register/student", methods: const [app.POST])
 addStudent(@Decode() Student student) async {
+    // registration does not include any enrollment
+    student.courses = [];
     Student s = await studentInfo(student.email);
     if (s == null) {
-        return db.execute("insert into students (email, name) "
-                     "values (@email, @name)", student);
+        db.execute("insert into students (email, name, courses) "
+                     "values (@email, @name, @courses)", student);
+        return "Student '${student.email}' registered";
     } else {
-        return db.execute("update students set name = @name where email = @email", student);
+        db.execute("update students set name = @name where email = @email", student);
+        return "Student '${student.email}' updated";
     }
 }
 
@@ -36,11 +40,17 @@ courseList() {
 @app.Route("/register/course", methods: const [app.POST])
 addCourse(@Decode() Course course) async {
     Course c = await courseInfo(course.id);
+    print(course.name);
+    print(course.id);
+    print(course.allowedStudents);
+    print(course.enrolledStudents);
     if (c == null) {
-        return db.execute("insert into courses (id, name) "
-                     "values (@id, @name)", course);
+        await db.execute("insert into courses (id, name, allowed_students, enrolled_students) "
+                     "values (@id, @name, @allowed_students, '[]')", course);
+        return "Course '${course.id}' registered";
     } else {
-        return db.execute("update courses set name = @name where id = @id", course);
+        await db.execute("update courses set name = @name, allowed_students = @allowed_students where id = @id", course);
+        return "Course '${course.id}' updated";
     }
 }
 
@@ -48,6 +58,29 @@ addCourse(@Decode() Course course) async {
 @Encode()
 courseInfo(String id) {
     return first(db.query("select * from courses where id = '$id' limit 1", Course));
+}
+
+@app.Route("/course/:id/enroll/:email")
+enrollStudent(String id, String email) async {
+    Course course = await courseInfo(id);
+    if (course == null) {
+        return "No course with id '$id' exists";
+    }
+    Student student = await studentInfo(email);
+    if (student == null) {
+        return "Student '$email' is not registered";
+    }
+    if (!course.allows(student)) {
+        return "Student '$email' is not allowed to enroll in Course '$id'";
+    }
+    if (course.enrolledStudents.contains(email)) {
+        return "Student '$email' is already enrolled in Course '$id'";
+    }
+    student.courses.add(id);
+    course.enrolledStudents.add(email);
+    db.execute("update courses set enrolled_students = @enrolled_students where id = @id", course);
+    db.execute("update students set courses = @courses where email = @email", student);
+    return "Student '$email' enrolled in Course '$id'";
 }
 
 Future first(Future dbResponse) {
