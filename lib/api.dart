@@ -1,5 +1,8 @@
 library api;
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:redstone/server.dart' as app;
 import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper/mapper.dart';
@@ -11,16 +14,23 @@ part 'auth.dart';
 
 PostgreSql get db => app.request.attributes.dbConn;
 
+@app.Route("/student")
+@Encode()
+studentList() async {
+    return requireRead(db.query("select * from students", Student));
+}
+
 @app.Route("/student/:email")
 @Encode()
-studentInfo(String email) {
-    return first(db.query("select * from students where email = '$email' limit 1", Student));
+studentInfo(String email) async {
+    return requireRead(first(db.query("select * from students where email = '$email'", Student)));
 }
 
 @app.Route("/register/student", methods: const [app.POST])
 addStudent(@Decode() Student student) async {
     // registration does not include any enrollment
     student.courses = [];
+    await requireWrite(student);
     Student s = await studentInfo(student.email);
     if (s == null) {
         db.execute("insert into students (email, name, courses) "
@@ -34,12 +44,13 @@ addStudent(@Decode() Student student) async {
 
 @app.Route("/course")
 @Encode()
-courseList() {
-    return db.query("select * from courses", Course);
+courseList() async {
+    return requireRead(db.query("select * from courses", Course));
 }
 
 @app.Route("/register/course", methods: const [app.POST])
 addCourse(@Decode() Course course) async {
+    await requireWrite(course);
     Course c = await courseInfo(course.id);
     if (c == null) {
         await db.execute("insert into courses (id, name, allowed_students, enrolled_students) "
@@ -53,8 +64,21 @@ addCourse(@Decode() Course course) async {
 
 @app.Route("/course/:id")
 @Encode()
-courseInfo(String id) {
-    return first(db.query("select * from courses where id = '$id' limit 1", Course));
+courseInfo(String id) async {
+    return requireRead(first(db.query("select * from courses where id = '$id'", Course)));
+}
+
+@app.Route("/course/:course/assignment/:id")
+@Encode()
+assignmentInfo(String course, String id) async {
+    return requireRead(first(db.query("select * from assignments where id = '$id' and course = '$course'", Assignment)));
+}
+
+@app.Route("/course/:course/assignment")
+@Encode()
+assignmentList(String course) async {
+    await courseInfo(course);
+    return db.query("select * from assignments where course = '$course'", Assignment);
 }
 
 @app.Route("/course/:id/enroll/:email")
@@ -64,6 +88,7 @@ enrollStudent(String id, String email) async {
         return "No course with id '$id' exists";
     }
     Student student = await studentInfo(email);
+    await requireWrite(student);
     if (student == null) {
         return "Student '$email' is not registered";
     }
@@ -80,10 +105,11 @@ enrollStudent(String id, String email) async {
     return "Student '$email' enrolled in Course '$id'";
 }
 
-Future first(Future dbResponse) {
-    return dbResponse.then((resp){
-        if (resp.length == 0) {
-            return null;
-        } else return resp[0];
-    });
+first(Future dbResponse) async {
+    var list = await dbResponse;
+    if (list.length == 0) {
+        return null;
+    } else {
+        return list[0];
+    }
 }

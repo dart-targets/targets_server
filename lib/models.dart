@@ -43,3 +43,50 @@ class Course {
         return false;
     }
 }
+
+class Assignment {
+    
+    @Field()
+    String course;
+    
+    @Field()
+    String id;
+    
+    @Field()
+    DateTime open;
+    
+    @Field()
+    DateTime deadline;
+    
+    @Field()
+    DateTime close;
+    
+    @Field()
+    String note;
+    
+    @Field(model: 'github_url')
+    String githubUrl;
+    
+}
+
+class Submission {
+    
+    @Field()
+    String course;
+    
+    @Field()
+    String assignment;
+    
+    @Field()
+    String student;
+    
+    @Field()
+    DateTime time;
+    
+    @Field()
+    Map<String, String> files;
+    
+    @Field()
+    String note;
+    
+}

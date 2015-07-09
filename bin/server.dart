@@ -83,18 +83,18 @@ initDatabase(PostgreSql db) {
                 );""");
     // Uploaded submissions that have not yet been validated
     // These expire about 5 minutes after creation
-    // course and id: Should match with active assignment
+    // course and assignment: Should match with active assignment
     // student: Student email that is making submission
     // time: time submissions is added to uploads table
     // files: JSON map of filenames to Base64 encoded files
     // note: Optional note to teacher for submission
     db.execute("""CREATE TABLE IF NOT EXISTS uploads (
-                    course  text,
-                    id      text,
-                    student text,
-                    time    timestamp DEFAULT current_timestamp,
-                    files   json,
-                    note    text
+                    course      text,
+                    assignment  text,
+                    student     text,
+                    time        timestamp DEFAULT current_timestamp,
+                    files       json,
+                    note        text
                 );""");
     // Submissions moved here from `uploads` after being
     // validated with the student's Google account
@@ -102,11 +102,11 @@ initDatabase(PostgreSql db) {
     // that it's moved to the submissions table, not the time
     // when it's first uploaded.
     db.execute("""CREATE TABLE IF NOT EXISTS submissions (
-                    course  text,
-                    id      text,
-                    student text,
-                    time    timestamp DEFAULT current_timestamp,
-                    files   json,
-                    note    text
+                    course      text,
+                    assignment  text,
+                    student     text,
+                    time        timestamp DEFAULT current_timestamp,
+                    files       json,
+                    note        text
                 );""");
 }
