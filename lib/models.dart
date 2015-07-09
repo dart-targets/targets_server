@@ -1,4 +1,8 @@
-part of api;
+library models;
+
+import 'package:redstone_mapper/plugin.dart';
+import 'package:redstone_mapper/mapper.dart';
+import 'package:redstone_mapper_pg/manager.dart';
 
 class Student {
     

@@ -5,8 +5,9 @@ import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper/mapper.dart';
 import 'package:redstone_mapper_pg/manager.dart';
 
+import 'package:targets_server/models.dart';
+
 part 'auth.dart';
-part 'models.dart';
 
 PostgreSql get db => app.request.attributes.dbConn;
 
