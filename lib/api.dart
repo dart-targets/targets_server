@@ -41,10 +41,6 @@ courseList() {
 @app.Route("/register/course", methods: const [app.POST])
 addCourse(@Decode() Course course) async {
     Course c = await courseInfo(course.id);
-    print(course.name);
-    print(course.id);
-    print(course.allowedStudents);
-    print(course.enrolledStudents);
     if (c == null) {
         await db.execute("insert into courses (id, name, allowed_students, enrolled_students) "
                      "values (@id, @name, @allowed_students, '[]')", course);
