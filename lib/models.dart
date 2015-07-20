@@ -1,8 +1,9 @@
 library models;
 
+import 'package:crypto/crypto.dart';
+
 import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper/mapper.dart';
-import 'package:redstone_mapper_pg/manager.dart';
 
 class Student {
     
@@ -33,6 +34,8 @@ class Course {
     /// Returns true if [student] is allowed in course
     /// Returns false otherwise
     bool allows(Student student) {
+        print(encodeJson(student));
+        print(encodeJson(this));
         for (String allowed in allowedStudents) {
             if (allowed == student.email || 
                     (allowed.startsWith("@") &&
@@ -55,11 +58,20 @@ class Assignment {
     @Field()
     DateTime open;
     
+    @Field(view: 'open', model: 'open')
+    String get open_str => open.toIso8601String();
+    
     @Field()
     DateTime deadline;
     
+    @Field(view: 'deadline', model: 'deadline')
+    String get deadline_str => deadline.toIso8601String();
+    
     @Field()
     DateTime close;
+    
+    @Field(view: 'close', model: 'close')
+    String get close_str => close.toIso8601String();
     
     @Field()
     String note;
@@ -83,10 +95,26 @@ class Submission {
     @Field()
     DateTime time;
     
+    @Field(view: 'time', model: 'time')
+    String get time_str => time.toIso8601String();
+    
     @Field()
     Map<String, String> files;
     
     @Field()
     String note;
     
+}
+
+/// Generates an MD5 hash for the given object (must be in models)
+String hash(var obj) {
+    if (!(obj is Student || obj is Course || 
+            obj is Assignment || obj is Submission)) {
+        throw new Exception("Object to hash must be in models.dart");
+    }
+    String json = encodeJson(obj);
+    var md5 = new MD5();
+    md5.add(json.codeUnits);
+    var bytes = md5.close();
+    return CryptoUtils.bytesToHex(bytes);
 }

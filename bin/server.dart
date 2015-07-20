@@ -39,7 +39,7 @@ ArgResults parseArgs(args) {
     return null;
 }
 
-initDatabase(PostgreSql db) {
+initDatabase(PostgreSql db) async {
     // List of registered courses
     // id: GitHub username or organization (e.g. `mvhs`)
     // name: Display name for course (e.g. `MVHS AP Java`)
@@ -48,7 +48,7 @@ initDatabase(PostgreSql db) {
     //           Must use /student/:email/enroll/:course endpoint
     //           Supports @domain.com as wildcard for all emails on domain
     // enrolled_students: JSON list of enrolled studente amils
-    db.execute("""CREATE TABLE IF NOT EXISTS courses (
+    await db.execute("""CREATE TABLE IF NOT EXISTS courses (
                     id                  text,
                     name                text,
                     allowed_students     json,
@@ -59,7 +59,7 @@ initDatabase(PostgreSql db) {
     // name: Full name automatically provided from Google account
     // courses: JSON map of enrolled courses to status
     //          Status can be "active" or "expired"
-    db.execute("""CREATE TABLE IF NOT EXISTS students (
+    await db.execute("""CREATE TABLE IF NOT EXISTS students (
                     email   text,
                     name    text,
                     courses json
@@ -72,7 +72,7 @@ initDatabase(PostgreSql db) {
     // close: Time after which submissions are no longer accepted
     // note: optional information about assignment
     // github_url: Link to assignment template
-    db.execute("""CREATE TABLE IF NOT EXISTS assignments (
+    await db.execute("""CREATE TABLE IF NOT EXISTS assignments (
                     course      text,
                     id          text,
                     open        timestamp,
@@ -86,9 +86,10 @@ initDatabase(PostgreSql db) {
     // course and assignment: Should match with active assignment
     // student: Student email that is making submission
     // time: time submissions is added to uploads table
-    // files: JSON map of filenames to Base64 encoded files
+    // files: JSON map of filenames to file contents
     // note: Optional note to teacher for submission
-    db.execute("""CREATE TABLE IF NOT EXISTS uploads (
+    await db.execute("""CREATE TABLE IF NOT EXISTS uploads (
+                    md5         text, 
                     course      text,
                     assignment  text,
                     student     text,
@@ -101,7 +102,7 @@ initDatabase(PostgreSql db) {
     // Official submission time is based on the time
     // that it's moved to the submissions table, not the time
     // when it's first uploaded.
-    db.execute("""CREATE TABLE IF NOT EXISTS submissions (
+    await db.execute("""CREATE TABLE IF NOT EXISTS submissions (
                     course      text,
                     assignment  text,
                     student     text,
@@ -109,4 +110,7 @@ initDatabase(PostgreSql db) {
                     files       json,
                     note        text
                 );""");
+    
+    // get rid of old uploads/submissions
+    await cleanSubmissions(db);
 }

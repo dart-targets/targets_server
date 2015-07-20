@@ -16,7 +16,7 @@ authFilter() {
         session['githubOwnedOrgs'] = [];
     }
     if (app.request.headers.containsKey('google')) {
-        session['googleLogin'] = [app.request.headers.google];
+        session['googleLogin'] = app.request.headers.google;
     } else session['googleLogin'] = null;
     app.chain.next(() => app.request.session.destroy());
 }
@@ -98,7 +98,10 @@ accessLevel(var data) async {
                 student.courses.contains(data.course)) {
             return WRITE_ACCESS;
         }
-        if (courseAccess(course) >= READ_ACCESS) return READ_ACCESS;
+        if (course.id == null) return NO_ACCESS;
+        if (session['githubOrgs'].contains(course.id)) {
+            return READ_ACCESS;
+        }
     }
     return UNRESTRICTED;
 }
