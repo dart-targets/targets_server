@@ -51,7 +51,7 @@ requireWrite(var data) async {
         data = await data;
     }
     if (data is List) {
-        filtered = [];
+        var filtered = [];
         for (var subdata in data) {
             if (await accessLevel(subdata) >= WRITE_ACCESS) {
                 filtered.add(subdata);
@@ -94,7 +94,7 @@ accessLevel(var data) async {
         if (student == null || course == null || assignment == null) {
             return NO_ACCESS;
         }
-        if (student.email = session['googleLogin'] && 
+        if (student.email == session['googleLogin'] && 
                 student.courses.contains(data.course)) {
             return WRITE_ACCESS;
         }

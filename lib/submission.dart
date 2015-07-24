@@ -44,7 +44,7 @@ validateSubmission(String md5) async {
 }
 
 // Finds an upload with the given MD5 hash
-Submission findUpload(String md5) async {
+findUpload(String md5) async {
     return first(db.query("select * from uploads where md5 = '$md5'", Submission));
 }
 

@@ -2,7 +2,6 @@ library models;
 
 import 'package:crypto/crypto.dart';
 
-import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper/mapper.dart';
 
 class Student {
