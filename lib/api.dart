@@ -138,6 +138,13 @@ assignmentList(String course) async {
     return db.query("select * from assignments where course = '$course'", Assignment);
 }
 
+/// Lists all submissions for the given assignment
+@app.Route("/submissions/:course/:assign")
+@Encode()
+submissionsList(String course, String assign) async {
+    return requireRead(db.query("select * from submissions where course = '$course' and assignment = '$assign'", Submission));
+}
+
 first(Future dbResponse) async {
     var list = await dbResponse;
     if (list.length == 0) {

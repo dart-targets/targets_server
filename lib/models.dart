@@ -34,8 +34,6 @@ class Course {
     /// Returns true if [student] is allowed in course
     /// Returns false otherwise
     bool allows(Student student) {
-        print(encodeJson(student));
-        print(encodeJson(this));
         for (String allowed in allowedStudents) {
             if (allowed == student.email || 
                     (allowed.startsWith("@") &&
@@ -96,7 +94,10 @@ class Submission {
     DateTime time;
     
     @Field(view: 'time', model: 'time')
-    String get time_str => time.toIso8601String();
+    String get time_str {
+        if (time == null) return null;
+        return time.toIso8601String();
+    }
     
     @Field()
     Map<String, String> files;
