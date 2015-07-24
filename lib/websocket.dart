@@ -9,12 +9,11 @@ String clientDirectory;
 
 String clientVersion;
 
-connect({server: 'ws://localhost:7620'}) {
+connectBackground({server: 'ws://localhost:7620'}) {
     socket = new WebSocket(server);
     socket.onOpen.listen((Event e) {
         socketConnected();
     });
-
     socket.onMessage.listen((MessageEvent e){
         // msg received
         var msg = JSON.decode(e.data);
@@ -23,7 +22,7 @@ connect({server: 'ws://localhost:7620'}) {
         } else if (msg['type'] == 'init') {
             clientDirectory = msg['directory'];
             clientVersion = msg['version'];
-            socketInitialized();
+            socketInitialized(clientDirectory, clientVersion);
         } else if (msg['type'] == 'error') {
             socketError(msg['exception']);
         }
@@ -32,6 +31,18 @@ connect({server: 'ws://localhost:7620'}) {
     socket.onClose.listen((Event e) {
         socketDisconnected();
     });
+}
+
+/// like connectBackground, but waits until connection is initialized to return
+connect({server: 'ws://localhost:7620'}) async {
+    connectBackground(server: server);
+    await for (var e in socket.onOpen) break;
+    await for (var e in socket.onMessage) {
+        var msg = JSON.decode(e.data);
+        if (msg['type'] == 'init') {
+            return;
+        }
+    }
 }
 
 // UI should rebind these functions
@@ -60,7 +71,7 @@ call(msg) async {
         if (resp['type'] == 'response' && 
                 resp['command'] == msg['command'] && 
                 resp['cmd-id'] == id) {
-            return msg;
+            return resp;
         }
     }
     return null;

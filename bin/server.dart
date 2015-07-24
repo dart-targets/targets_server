@@ -39,6 +39,18 @@ ArgResults parseArgs(args) {
     return null;
 }
 
+@app.Interceptor(r'/.*')
+pathFixer() {
+    String url = app.request.url.toString();
+    if (url.startsWith('/api/v1/')) {
+        app.chain.next();
+    } else {
+        if (!url.contains(".") && !url.endsWith('/')) {
+            app.redirect(url + "/");
+        } else app.chain.next();
+    }
+}
+
 initDatabase(PostgreSql db) async {
     // List of registered courses
     // id: GitHub username or organization (e.g. `mvhs`)
