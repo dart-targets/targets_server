@@ -93,11 +93,20 @@ getAssignment(String id, [String url = null]) async {
     });
 }
 
-runTests(String assignment) async {
+runTestsStandard(String assignment) async {
     await call({
         'command': 'test',
         'assignment': assignment
     });
+}
+
+runTestsJson(String assignment) async {
+    var resp = await call({
+        'command': 'test',
+        'assignment': assignment,
+        'json': true
+    });
+    return resp['results'];
 }
 
 uploadSubmission(String assign, String email, String note) async {

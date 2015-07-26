@@ -13,8 +13,9 @@ main() async {
     */
     await connect();
     await getAssignment('dart-targets/enigma/dart');
-    await runTests('enigma-dart');
+    await runTestsStandard('enigma-dart');
     String contents = await readFile('enigma-dart/bombe.dart');
     print("Contents: $contents");
-    
+    var results = await runTestsJson('enigma-dart');
+    print(results);
 }
