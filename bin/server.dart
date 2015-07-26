@@ -3,20 +3,21 @@ import 'dart:io';
 import 'package:redstone/server.dart' as app;
 import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper_pg/manager.dart';
-import 'package:shelf_static/shelf_static.dart';
 
-import "package:path/path.dart" show join, dirname;
 import 'package:args/args.dart';
 
 @app.Install(urlPrefix: '/api/v1')
 import 'package:targets_server/api.dart';
 
+@app.Install(urlPrefix: '/')
+import 'package:targets_server/static_routes.dart' as static_routes;
+
+@app.Install(urlPrefix: '/')
+import 'package:targets_server/login_routes.dart';
+
 main(raw_args) {
     var args = parseArgs(raw_args);
-    String webDir = join(dirname(dirname(Platform.script.toFilePath())), 'web');
-    app.setShelfHandler(createStaticHandler(webDir, 
-                        defaultDocument: "index.html", 
-                        serveFilesOutsidePath: true));
+    app.setShelfHandler(static_routes.makeHandler());
     String uri = Platform.environment['POSTGRES_URI'];
     var dbManager = new PostgreSqlManager(uri);
     app.addPlugin(getMapperPlugin(dbManager));
@@ -37,18 +38,6 @@ ArgResults parseArgs(args) {
         exit(1);
     }
     return null;
-}
-
-@app.Interceptor(r'/.*')
-pathFixer() {
-    String url = app.request.url.toString();
-    if (url.startsWith('/api/v1/')) {
-        app.chain.next();
-    } else {
-        if (!url.contains(".") && !url.endsWith('/')) {
-            app.redirect(url + "/");
-        } else app.chain.next();
-    }
 }
 
 initDatabase(PostgreSql db) async {

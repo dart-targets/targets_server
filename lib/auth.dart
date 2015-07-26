@@ -1,26 +1,5 @@
 part of api;
 
-@app.Interceptor(r'/.*')
-authFilter() {
-    // eventually, we need to handle proper login with GitHub and Google
-    // for right now, we'll look for a "github" header or a "google" header
-    // with the user/org name or email address as the value.
-    var session = app.request.session;
-    if (app.request.headers.containsKey('github')) {
-        session['githubLogin'] = app.request.headers.github;
-        session['githubOrgs'] = [app.request.headers.github];
-        session['githubOwnedOrgs'] = [app.request.headers.github];
-    } else {
-        session['githubLogin'] = null;
-        session['githubOrgs'] = [];
-        session['githubOwnedOrgs'] = [];
-    }
-    if (app.request.headers.containsKey('google')) {
-        session['googleLogin'] = app.request.headers.google;
-    } else session['googleLogin'] = null;
-    app.chain.next(() => app.request.session.destroy());
-}
-
 int NO_ACCESS = 0;
 int READ_ACCESS = 1;
 int WRITE_ACCESS = 2;
@@ -67,16 +46,15 @@ requireWrite(var data) async {
 
 /// data can be a Course, Student, Assignment, or Submission
 accessLevel(var data) async {
-    var session = app.request.session;
     if (data is Course) {
         return courseAccess(data);
     } else if (data is Student) {
         if (data.email == null) return NO_ACCESS;
-        if (data.email == session['googleLogin']) {
+        if (login.isGoogle(data.email)) {
             return WRITE_ACCESS;
         }
         for (String course in data.courses) {
-            if (session['githubOrgs'].contains(course)) {
+            if (login.isGithubMember(course)) {
                 return READ_ACCESS;
             }
         }
@@ -94,12 +72,12 @@ accessLevel(var data) async {
         if (student == null || course == null || assignment == null) {
             return NO_ACCESS;
         }
-        if (student.email == session['googleLogin'] && 
+        if (login.isGoogle(student.email) && 
                 student.courses.contains(data.course)) {
             return WRITE_ACCESS;
         }
         if (course.id == null) return NO_ACCESS;
-        if (session['githubOrgs'].contains(course.id)) {
+        if (login.isGitHubMember(course.id)) {
             return READ_ACCESS;
         }
     }
@@ -109,14 +87,14 @@ accessLevel(var data) async {
 courseAccess(Course course) {
     var session = app.request.session;
     if (course.id == null) return NO_ACCESS;
-    if (course.id == session['githubLogin'] || session['githubOwnedOrgs'].contains(course.id)) {
+    if (login.isGithubOwner(course.id)) {
         return WRITE_ACCESS;
-    } else if (session['githubOrgs'].contains(course.id)) {
+    } else if (login.isGitHubMember(course.id)) {
         return READ_ACCESS;
-    } else if (session['googleLogin'] == null) {
+    } else if (!login.isStudent()) {
         return NO_ACCESS;
     }
-    Student student = new Student()..email = session['googleLogin'];
+    Student student = new Student()..email = login.getGoogleEmail();
     if (course.allows(student)) {
         return READ_ACCESS;
     }

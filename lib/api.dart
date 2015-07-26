@@ -8,6 +8,7 @@ import 'package:redstone_mapper/plugin.dart';
 import 'package:redstone_mapper_pg/manager.dart';
 
 import 'package:targets_server/models.dart';
+import 'package:targets_server/login.dart' as login;
 
 part 'auth.dart';
 part 'submission.dart';
