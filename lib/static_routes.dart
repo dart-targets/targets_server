@@ -8,19 +8,18 @@ import 'package:targets_server/login.dart' as login;
 
 String webDir = join(dirname(dirname(Platform.script.toFilePath())), 'web');
 
-Handler makeHandler() => createStaticHandler(webDir, defaultDocument: 'index.html');
+Handler makeHandler() => createStaticHandler(webDir, defaultDocument: 'index.html', serveFilesOutsidePath: true);
 
-@app.Interceptor(r'/console/.*')
+@app.Interceptor(r'/console.*')
 consoleBlocker() {
     String url = app.request.url.toString();
-    if (url == '/console/' || url == '/console/student.html' ||
+    if (url == '/console' || url == '/console/student.html' ||
             url == '/console/teacher.html' || url == '/console/unauth.html') {
-        print('unauth!');
-        app.redirect('/console');
+        app.redirect('/console/');
     } else app.chain.next();
 }
 
-@app.Route('/console')
+@app.Route('/console/')
 consolePage() {
     if (login.isStudent()) {
         return new File(join(webDir, 'console', 'student.html'));

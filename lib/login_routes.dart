@@ -29,10 +29,18 @@ authFilter() {
 
 @app.Route('/login/google')
 googleLogin() {
-    return "TODO: Listen for Google OAuth callback";
+    // TODO: Listen for Google OAuth callback
+    app.redirect('/console/')
 }
 
 @app.Route('/login/github')
 githubLogin() {
-    return "TODO: Listen for GitHub OAuth callback";
+    // TODO: Listen for GitHub OAuth callback
+    app.redirect('/console/');
+}
+
+@app.Route('/logout')
+logout() {
+    app.request.session.destroy();
+    app.redirect('/console/');
 }
