@@ -6,6 +6,8 @@ This project is eventually designed to replace the existing PHP scripts used for
 
 This server requires Dart 1.8+ and PostgreSQL 9.2+ to be installed. A `POSTGRES_URI` environment variable must be available in the form `postgres://USER:PASSWORD@localhost:PORT/DB_NAME`. The server will use the database specified in this URI for data storage. You do not need to configure any tables, as the server will create any that it needs.
 
+In order to authenticate a teacher through GitHub, the server needs `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` environment variables.
+
 The server currently depends on custom forks of the `redstone_mapper_pg` and `postgresql` Dart packages in order to support JSON data types for Postgres. However, Pub takes care of downloading these automatically through Git dependencies.
 
 ## Usage Instructions ##

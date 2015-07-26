@@ -15,6 +15,9 @@
             border-radius: 4px;
             background: #57f;
             color: #fff;
+            text-decoration: none;
+            display: block;
+            text-align: center;
         }
         .button:hover {
             background: #35d;
@@ -28,7 +31,7 @@
     <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark">Login with Google</div>
     <br>
     <b>Teachers</b>
-    <div id="github" class='button'>Login with GitHub</div>
+    <a href='/authflow/github' class='button'>Login with GitHub</a>
     <form id='googleForm' style='display:none' action='/login/google' method='post'>
         <input type='text' name='id_token' id='googleToken'/>
         <input type='text' name='name' id='googleName'/>
@@ -53,6 +56,7 @@
             form.submit(); 
         });
     };
+    
 </script>
 </body>
 </html>

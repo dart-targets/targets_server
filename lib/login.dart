@@ -29,18 +29,15 @@ bool isGoogle(String email) {
 }
 
 bool isGithubMember(String org) {
-    if (isGithubOwner(org)) {
-        return true;
-    }
-    return false;
+    if (!isTeacher()) return false;
+    var profile = app.request.session['profile'];
+    return profile['username'] == org || profile['orgs'].contains(org);
 }
 
 bool isGithubOwner(String org) {
     if (!isTeacher()) return false;
-    if (app.request.session['profile']['username'] == org) {
-        return true;
-    }
-    return false;
+    var profile = app.request.session['profile'];
+    return profile['username'] == org || profile['ownedOrgs'].contains(org);
 }
 
 // to avoid capitalization problems
