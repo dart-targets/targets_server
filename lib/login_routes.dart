@@ -9,9 +9,15 @@ import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
 @app.Route('/login/google', methods: const [app.POST])
-googleLogin(@app.Body(app.FORM) Map form) {
+googleLogin(@app.Body(app.FORM) Map form) async {
     var token = form['id_token'];
-    // TODO validate profile info based on token
+    var response = await http.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=$token');
+    var auth = JSON.decode(response.body);
+    String clientID = "563738534627-jmcuf5en3b51a6oe7k40ruid2i58hp1l.apps.googleusercontent.com";
+    if (auth['email'] != form['email'] || form['aud'] != clientID || !form['email_verified']) {
+        app.request.session.destroy();
+        app.redirect('/console/');
+    }
     app.request.session['profile'] = {
         'name': form['name'],
         'email': form['email'],
