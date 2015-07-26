@@ -11,15 +11,21 @@ bool isTeacher() {
 }
 
 String getGoogleEmail() {
-    return app.request.session['googleLogin'];
+    if (isStudent()) {
+        return app.request.session['profile']['email'];
+    }
+    return null;
 }
 
 String getGithubUsername() {
-    return app.request.session['githubLogin'];
+    if (isTeacher()) {
+        return app.request.session['profile']['username'];
+    }
+    return null;
 }
 
 bool isGoogle(String email) {
-    return app.request.session['googleLogin'] == email;
+    return isStudent() && app.request.session['profile']['email'] == email;
 }
 
 bool isGithubMember(String org) {
@@ -30,7 +36,8 @@ bool isGithubMember(String org) {
 }
 
 bool isGithubOwner(String org) {
-    if (app.request.session['githubLogin'] == org) {
+    if (!isTeacher()) return false;
+    if (app.request.session['profile']['username'] == org) {
         return true;
     }
     return false;

@@ -15,6 +15,14 @@ part 'submission.dart';
 
 PostgreSql get db => app.request.attributes.dbConn;
 
+/// Gets info about logged in user, if any
+@app.Route("/user")
+userInfo() {
+    if (login.isStudent() || login.isTeacher()) {
+        return app.request.session['profile'];
+    }
+}
+
 // Student API
 
 /// Lists all students the user has access to

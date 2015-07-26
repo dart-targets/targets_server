@@ -4,12 +4,55 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="563738534627-jmcuf5en3b51a6oe7k40ruid2i58hp1l.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <title>Targets Console</title>
+    <style>
+        .button {
+            padding: 4px;
+            width: 200px;
+            border-radius: 4px;
+            background: #57f;
+            color: #fff;
+        }
+        .button:hover {
+            background: #35d;
+        }
+    </style>
 </head>
 <body>
-    Unauthorized Version
-    <!-- Body Here -->
-<script type="application/dart" src="unauth.dart"></script>
-<script data-pub-inline src="packages/browser/dart.js"></script>
+    This page is still under construction<br>
+    <br>
+    <b>Students</b>
+    <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark">Login with Google</div>
+    <br>
+    <b>Teachers</b>
+    <div id="github" class='button'>Login with GitHub</div>
+    <form id='googleForm' style='display:none' action='/login/google' method='post'>
+        <input type='text' name='id_token' id='googleToken'/>
+        <input type='text' name='name' id='googleEmail'/>
+        <input type='text' name='email' id='googleName'/>
+        <input type='text' name='image' id='googleImage'/>
+    </form>
+<script>
+    function onSignIn(googleUser) {
+        var id_token = googleUser.getAuthResponse().id_token;
+        var profile = googleUser.getBasicProfile();
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            var form = document.getElementById('googleForm');
+            var tokenInput = document.getElementById('googleToken');
+            tokenInput.value = id_token;
+            var nameInput = document.getElementById('googleName');
+            nameInput.value = profile.getName();
+            var emailInput = document.getElementById('googleEmail');
+            emailInput.value = profile.getEmail();
+            var imageInput = document.getElementById('googleImage');
+            imageInput.value = profile.getImageUrl();
+            form.submit(); 
+        });
+    };
+</script>
 </body>
 </html>

@@ -85,7 +85,6 @@ accessLevel(var data) async {
 }
 
 courseAccess(Course course) {
-    var session = app.request.session;
     if (course.id == null) return NO_ACCESS;
     if (login.isGithubOwner(course.id)) {
         return WRITE_ACCESS;
