@@ -121,7 +121,10 @@ uploadSubmission(String assign, String email, String note) async {
 
 requestUpdate() => send({'command': 'update'});
 
-getDirectoryTree() async => call({'command': 'directory'});
+getDirectoryTree() async {
+    var resp = await call({'command': 'directory'});
+    return resp['tree'];
+}
 
 readFile(String file) async {
     var resp = await call({
