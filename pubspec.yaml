@@ -21,3 +21,6 @@ dependencies:
     redstone_mapper_pg:
         git:
             git@github.com:dart-targets/redstone_mapper_pg.git
+    redstone_mapper: any
+transformers:
+- redstone_mapper
