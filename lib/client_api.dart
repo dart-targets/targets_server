@@ -5,15 +5,10 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:redstone_mapper/mapper.dart' as mapper;
-import 'package:redstone_mapper/mapper_factory.dart';
 
 import 'package:targets_server/models.dart';
 
 /// Provides an interface for the client to make API requests to the server.
-
-initAPI() {
-    bootstrapMapper();
-}
 
 String apiRoot = '/api/v1';
 
