@@ -98,7 +98,7 @@ class TreeListener extends TreeNodeListener {
         var name = new SpanElement()..innerHtml = node.label;
         name.classes.add('editor-tab-name');
         tab.element.append(name);
-        var close = new SpanElement()..innerHtml = 'ⓧ';
+        var close = new SpanElement()..innerHtml = '&times;';
         close.classes.add('editor-tab-close');
         close.onClick.listen((e) {
             int index = tabs.indexOf(tab);

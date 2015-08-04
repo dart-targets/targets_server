@@ -48,7 +48,7 @@ initDatabase(PostgreSql db) async {
     //           Emails in this list are not automatically enrolled
     //           Must use /student/:email/enroll/:course endpoint
     //           Supports @domain.com as wildcard for all emails on domain
-    // enrolled_students: JSON list of enrolled studente amils
+    // enrolled_students: JSON list of enrolled student emails
     await db.execute("""CREATE TABLE IF NOT EXISTS courses (
                     id                  text,
                     name                text,
@@ -73,14 +73,16 @@ initDatabase(PostgreSql db) async {
     // close: Time after which submissions are no longer accepted
     // note: optional information about assignment
     // github_url: Link to assignment template
+    // download_code: ID (e.g. mvhs/spy-app) sent to client to download template
     await db.execute("""CREATE TABLE IF NOT EXISTS assignments (
-                    course      text,
-                    id          text,
-                    open        timestamp,
-                    deadline    timestamp,
-                    close       timestamp,
-                    note        text,
-                    github_url  text
+                    course          text,
+                    id              text,
+                    open            bigint,
+                    deadline        bigint,
+                    close           bigint,
+                    note            text,
+                    github_url      text,
+                    download_code   text
                 );""");
     // Uploaded submissions that have not yet been validated
     // These expire about 5 minutes after creation
@@ -94,7 +96,7 @@ initDatabase(PostgreSql db) async {
                     course      text,
                     assignment  text,
                     student     text,
-                    time        timestamp DEFAULT current_timestamp,
+                    time        bigint,
                     files       json,
                     note        text
                 );""");
@@ -107,7 +109,7 @@ initDatabase(PostgreSql db) async {
                     course      text,
                     assignment  text,
                     student     text,
-                    time        timestamp DEFAULT current_timestamp,
+                    time        bigint,
                     files       json,
                     note        text
                 );""");

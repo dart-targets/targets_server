@@ -121,12 +121,12 @@ addAssignment(@Decode() Assignment assign) async {
     await requireWrite(assign);
     Assignment a = await assignmentInfo(assign.course, assign.id);
     if (a == null) {
-        await db.execute("insert into assignments (course, id, open, deadline, close, note, github_url) "
-                    "values (@course, @id, @open, @deadline, @close, @note, @github_url)", assign);
+        await db.execute("insert into assignments (course, id, open, deadline, close, note, github_url, download_code) "
+                    "values (@course, @id, @open, @deadline, @close, @note, @github_url, @download_code)", assign);
         return "Assignment '${assign.id}' in  Course '${assign.course}' registered";
     } else {
         await db.execute("update assignments set open = @open, deadline = @deadline, close = @close, note = @note, github_url = @github_url "
-                    "where course = @course and id = @id", assign);
+                    "where course = @course and id = @id and download_code = @download_code", assign);
         return "Assignment '${assign.id}' in  Course '${assign.course}' updated";
     }
 }

@@ -6,10 +6,10 @@ part of api;
 @app.Route("/upload", methods: const [app.POST])
 uploadSubmission(@Decode() Submission subm) async {
     cleanSubmissions();
-    subm.time = new DateTime.now();
+    subm.time = new DateTime.now().millisecondsSinceEpoch;
     String md5 = hash(subm);
-    await db.execute("insert into uploads (md5, course, assignment, student, files, note) "
-                     "values ('$md5', @course, @assignment, @student, @files, @note)", subm);
+    await db.execute("insert into uploads (md5, course, assignment, student, files, note, time) "
+                     "values ('$md5', @course, @assignment, @student, @files, @note, @time)", subm);
     return md5;
 }
 
@@ -26,7 +26,7 @@ validateSubmission(String md5) async {
     if (assign == null) {
         return "No assignment '${subm.assignment}' exists in course '${subm.course}'";
     }
-    subm.time = new DateTime.now();
+    subm.time = new DateTime.now().millisecondsSinceEpoch;
     if (subm.time.isBefore(assign.open)) {
         return "This assignment is not yet open to submissions. Please try again after ${assign.open}";
     } else if (subm.time.isAfter(assign.close)) {
@@ -52,5 +52,6 @@ findUpload(String md5) async {
 // Should eventually remove submissions after some time?
 cleanSubmissions([database = null]) async {
     if (database == null) database = db;
-    await database.execute("delete from uploads where time < now() - interval '10 minutes'");
+    int boundary = new DateTime.now().millisecondsSinceEpoch - 10*60*1000;
+    await database.execute("delete from uploads where time < $boundary");
 }

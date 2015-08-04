@@ -5,13 +5,102 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Targets Console</title>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="editor.css">
 </head>
 <body>
-    Teacher Version
-    <!-- Body Here --><br>
-    <img style='width:50px;height:50px' id='profile'/>
-    <span id='info'></span>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img class='logo' alt="Targets" src="/dartboard.png">
+                <span class='console-title'>Teacher Console</span>
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="course-current">Course</span><span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu course-list">
+                </ul>
+            </li>
+            <li class="tab tab-assignments"><a>Assignments</a></li>
+            <li class='tab tab-students'><a>Students</a></li>
+            <li class='tab tab-editor'><a>Editor <span class="badge">&beta;</span></a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span>Options</span><span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu course-list">
+                    <li class='update-course'><a>Update Course</a></li>
+                    <li class='add-assignment'><a>Add Assignment</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="socket-info"></span>
+                </a>
+                <ul class="dropdown-menu">
+                <li class='socket-reconnect'><a>Reconnect</a></li>
+                <li class='socket-update'><a>Update</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <img class='user-image' src=""/> <span class="user-name">Loading...</span> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                <li><a href="/logout">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="main">
+    <div class="page page-assignments">
+        <div class="container-fluid assignment-container">
+            <div class="row assignments">
+                <!-- Assignments here -->
+            </div>
+        </div>
+    </div>
+    <div class="page page-students">
+        <h5>Enrolled Students</h5>
+        <div class="list-group enrolled-students"></div>
+        <h5>Unenrolled Students</h5>
+        <div class="list-group unenrolled-students"></div>
+        <h5>Allowed Domains</h5>
+        <div class="list-group allowed-domains"></div>
+    </div>
+    <div class="page page-editor">
+        <div class="editor" id="editor"></div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="registerCourse" tabindex="-1" role="dialog" aria-labelledby="registerCourseLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="registerCourseLabel">Register Course</h4>
+      </div>
+      <div class="modal-body">
+        The proper buttons go here
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Register</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="application/dart" src="teacher.dart"></script>
 <script data-pub-inline src="packages/browser/dart.js"></script>
+<script type="text/javascript" charset="utf-8" src="ace/ace.js"></script>
 </body>
 </html>

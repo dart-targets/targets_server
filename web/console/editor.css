@@ -67,7 +67,7 @@
     color: #57f;
 }
 
-#editor {
+.editor {
     display: none;
     position: absolute;
     top: 0;

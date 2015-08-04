@@ -95,6 +95,9 @@ courseAccess(Course course) {
     }
     Student student = new Student()..email = login.getGoogleEmail();
     if (course.allows(student)) {
+        // prevents students from reading enrolled list
+        // may change later
+        course.enrolledStudents = null;
         return READ_ACCESS;
     }
     return NO_ACCESS;

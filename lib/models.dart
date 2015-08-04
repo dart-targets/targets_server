@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 
 import 'package:redstone_mapper/mapper.dart';
 
-class Student {
+class Student extends Object with Comparable<Student> {
     
     @Field()
     String name;
@@ -14,6 +14,17 @@ class Student {
     
     @Field()
     List<String> courses = [];
+    
+    @override
+    int compareTo(Student other) {
+        // order by last name
+        String lastName = name.split(" ").last.toLowerCase();
+        String otherLastName = name.split(" ").last.toLowerCase();
+        int compare = lastName.compareTo(otherLastName);
+        if (compare == 0) {
+            return name.toLowerCase().compareTo(other.name.toLowerCase());
+        } else return compare;
+    }
 }
 
 class Course {
@@ -53,28 +64,22 @@ class Assignment {
     String id;
     
     @Field()
-    DateTime open;
-    
-    @Field(view: 'open', model: 'open')
-    String get open_str => open.toIso8601String();
+    int open = 0;
     
     @Field()
-    DateTime deadline;
-    
-    @Field(view: 'deadline', model: 'deadline')
-    String get deadline_str => deadline.toIso8601String();
+    int deadline = 0;
     
     @Field()
-    DateTime close;
-    
-    @Field(view: 'close', model: 'close')
-    String get close_str => close.toIso8601String();
+    int close = 0;
     
     @Field()
     String note;
     
     @Field(model: 'github_url')
     String githubUrl;
+    
+    @Field(model: 'download_code')
+    String downloadCode;
     
 }
 
@@ -90,13 +95,7 @@ class Submission {
     String student;
     
     @Field()
-    DateTime time;
-    
-    @Field(view: 'time', model: 'time')
-    String get time_str {
-        if (time == null) return null;
-        return time.toIso8601String();
-    }
+    int time = 0;
     
     @Field()
     Map<String, String> files;
