@@ -230,6 +230,9 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
     for (var subm in submissions) {
         Student student = students[subm.student];
         String timestamp = formatTime(subm.time);
+        if (subm.time > assign.deadline) {
+            timestamp += '&nbsp;<span class="label label-danger">Late</span>';
+        }
         var item = new DivElement()..classes = ['submission'];
         item.innerHtml = '${student.name}<br>${student.email}<br>$timestamp';
         item.onClick.listen((e){
@@ -285,7 +288,11 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
 }
 
 makeGradeTable(var results, {String withOnly: null}) {
-    var table = new Element.table()..classes=['results-table'];
+    var table = new Element.table()..classes=['results-table', 'table', 'table-hover'];
+    var thead = new Element.tag('thead');
+    var tbody = new Element.tag('tbody');
+    table.append(thead);
+    table.append(tbody);
     var testList = [];
     var testPoints = [];
     var totalPoints;
@@ -295,9 +302,9 @@ makeGradeTable(var results, {String withOnly: null}) {
                 testList.add(test['name']);
                 if (test.containsKey('points')) {
                     if (test['includedInScore']) {
-                        testPoints.add("${test['points']}");
+                        testPoints.add("${test['points']} pts");
                     } else {
-                        testPoints.add("<i>${test['points']}</i>");
+                        testPoints.add("<i>${test['points']} pts</i>");
                     }
                 } else {
                     testPoints.add('P/F');
@@ -308,14 +315,14 @@ makeGradeTable(var results, {String withOnly: null}) {
         }
     }
     var heading = new Element.tr()..classes=['results-header'];
-    heading.append(new Element.td()..innerHtml = 'Student');
+    heading.append(new Element.th()..innerHtml = 'Student');
     for (int i = 0; i < testList.length; i++) {
         var test = testList[i];
         var points = testPoints[i];
-        heading.append(new Element.td()..innerHtml = '$test<br>$points');
+        heading.append(new Element.th()..innerHtml = '$test<br>$points');
     }
-    heading.append(new Element.td()..innerHtml = 'Total<br>$totalPoints');
-    table.append(heading);
+    heading.append(new Element.th()..innerHtml = 'Total<br>$totalPoints');
+    thead.append(heading);
     var keys = results.keys;
     if (withOnly != null) {
         keys = [withOnly];
@@ -336,7 +343,7 @@ makeGradeTable(var results, {String withOnly: null}) {
                 var result = stuTest['result'];
                 var td = new Element.td()..classes = ['results-$result'];
                 if (stuTest.containsKey('score')) {
-                    td.innerHtml = stuTest['score'];
+                    td.innerHtml = "${stuTest['score']}";
                 } else {
                     td.innerHtml = result == 'passed' ? 'P' : 'F';
                 }
@@ -350,7 +357,7 @@ makeGradeTable(var results, {String withOnly: null}) {
                 row.append(new Element.td()..innerHtml = 'x'..classes=['results-failed']);
             }
         }
-        table.append(row);
+        tbody.append(row);
     }
     return table;
 }
