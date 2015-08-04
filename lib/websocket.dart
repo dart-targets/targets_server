@@ -3,33 +3,39 @@ library websocket;
 import 'dart:html';
 import 'dart:convert';
 
+import 'package:redstone_mapper/mapper.dart' as mapper;
+
 WebSocket socket;
 
 String clientDirectory;
 
 String clientVersion;
 
+bool socketConnected = false;
+
 connectBackground({server: 'ws://localhost:7620'}) {
     socket = new WebSocket(server);
     socket.onOpen.listen((Event e) {
-        socketConnected();
+        socketConnected = true;
+        onSocketConnected();
     });
     socket.onMessage.listen((MessageEvent e){
         // msg received
         var msg = JSON.decode(e.data);
         if (msg['type'] == 'log') {
-            socketLog(sanitize(msg['text']));
+            onSocketLog(sanitize(msg['text']));
         } else if (msg['type'] == 'init') {
             clientDirectory = msg['directory'];
             clientVersion = msg['version'];
-            socketInitialized(clientDirectory, clientVersion);
+            onSocketInitialized(clientDirectory, clientVersion);
         } else if (msg['type'] == 'error') {
-            socketError(msg['exception']);
+            onSocketError(msg['exception']);
         }
     });
 
     socket.onClose.listen((Event e) {
-        socketDisconnected();
+        socketConnected = false;
+        onSocketDisconnected();
     });
 }
 
@@ -46,11 +52,11 @@ connect({server: 'ws://localhost:7620'}) async {
 }
 
 // UI should rebind these functions
-Function socketLog = (text) => print(text);
-Function socketConnected = () => print("Connected to client");
-Function socketDisconnected = () => print("Disconnected from client");
-Function socketInitialized = (directory, version) => print("Client version $version initialized in $directory");
-Function socketError = (error) => print("Socket Error: $error");
+Function onSocketLog = (text) => print(text);
+Function onSocketConnected = () => print("Connected to client");
+Function onSocketDisconnected = () => print("Disconnected from client");
+Function onSocketInitialized = (directory, version) => print("Client version $version initialized in $directory");
+Function onSocketError = (error) => print("Socket Error: $error");
 
 int msgCounter = 0;
 
@@ -140,6 +146,23 @@ writeFile(String filename, String contents) async {
         'file': filename,
         'contents': contents
     });
+}
+
+saveSubmissions(String templateId, String directory, var submissions) async {
+    await call({
+        'command': 'save-submissions',
+        'templateId': templateId,
+        'directory': directory,
+        'submissions': mapper.encode(submissions)
+    });
+}
+
+batchGrade(String directory) async {
+    var resp = await call({
+        'command': 'batch-grade',
+        'directory': directory
+    });
+    return resp['results'];
 }
 
 

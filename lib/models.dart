@@ -103,6 +103,12 @@ class Submission {
     @Field()
     String note;
     
+    @override
+    int compareTo(Student other) {
+        // order by time (newest first)
+        return other.time - time;
+    }
+    
 }
 
 /// Generates an MD5 hash for the given object (must be in models)

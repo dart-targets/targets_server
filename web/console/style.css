@@ -2,15 +2,20 @@
     height: 40px;
     margin: -10px;
     width: auto;
-    padding-right: 12px;
 }
 
-.navbar-nav.navbar-right:last-child {
-    margin-right: 0;
+.user-image {
+    padding-right: 18px;
+}
+
+.console-title {
+    margin-top: 13px;
+    font-size: 13pt;
 }
 
 .navbar {
     border-radius: 0;
+    height: 50px;
 }
 
 .main {
@@ -31,7 +36,7 @@
     padding: 8px 16px;
 }
 
-.tab-editor {
+.tab-editor, .tab-submissions {
     display: none;
 }
 
@@ -51,4 +56,94 @@
     padding: 0;
     margin: 0;
     
+}
+
+.alert {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 16px;
+    z-index: 10;
+}
+
+.submission-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100%;
+    overflow-y: auto;
+    background: #eee;
+}
+
+.submission-contents {
+    position: absolute;
+    height: calc(100% - 40px);
+    left: 280px;
+    top: 40px;
+    width: calc(100% - 280px);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.submission-controls {
+    position: absolute;
+    width: calc(100% - 280px);
+    height: 40px;
+    top: 0;
+    left: 280px;
+    padding-top: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.submission {
+    font-family: sans-serif;
+    font-size: 11pt;
+    padding: 10px;
+}
+
+.subm-btn {
+    margin-left: 4px;
+    margin-right: 4px;
+    width: calc(25% - 12px);
+}
+
+.results-passed {
+    background: rgba(0, 255, 0, 0.2);
+}
+
+.results-failed {
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.results-partial {
+    background: rgba(255, 255, 0, 0.2);
+}
+
+.results-table {
+    text-align: right;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.results-table tr td {
+    padding: 1px 8px;
+}
+
+.results-header {
+    font-weight: 700;
+}
+
+.filename {
+    margin-top: 16px;
+}
+
+.submission:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.submission-selected, .submission-selected:hover {
+    background: rgba(0,0,0,0.1);
 }
