@@ -142,10 +142,19 @@ switchCourse(String courseId) async {
         if (course.id == courseId) currentCourse = course;
     }
     querySelector('.course-current').innerHtml = currentCourse.id;
+    querySelector('.navbar').classes = ['navbar'];
+    querySelectorAll('.btn-themed').classes.remove('btn-primary');
+    querySelectorAll('.btn-themed').classes.remove('btn-inverse');
     if (isCourseAdmin(courseId)) {
         querySelector('.console-title').innerHtml = "Teacher Console";
+        querySelector('.navbar').classes.add('navbar-inverse');
+        querySelectorAll('.btn-themed').classes.add('btn-inverse');
+        querySelectorAll('.btn-teacher').style.display = 'inline-block';
     } else {
         querySelector('.console-title').innerHtml = "Grader Console";
+        querySelector('.navbar').classes.add('navbar-primary');
+        querySelectorAll('.btn-themed').classes.add('btn-primary');
+        querySelectorAll('.btn-teacher').style.display = 'none';
     }
     querySelector('.course-name').innerHtml = currentCourse.name;
     loadAssignments();
@@ -154,6 +163,7 @@ switchCourse(String courseId) async {
 
 loadAssignments() async {
     assignments = await api.getAssignments(currentCourse.id);
+    assignments.sort();
     var container = querySelector('.assignments');
     container.innerHtml = "";
     for (var assign in assignments) {
@@ -164,14 +174,15 @@ loadAssignments() async {
 Element makeAssignment(Assignment assign) {
     var now = new DateTime.now().millisecondsSinceEpoch;
     var item = new DivElement();
-    item.classes = ['assignment', 'panel', 'col-xs-12', 'col-sm-6', 'col-md-6', 'col-lg-4'];
+    String type;
     if (now < assign.open) {
-        item.classes.add('panel-warning');
+        type = 'warning';
     } else if (now < assign.deadline) {
-        item.classes.add('panel-info');
+        type = 'info';
     } else {
-        item.classes.add('panel-success');
+        type = 'success';
     }
+    item.classes = ['assignment', 'panel', 'col-xs-11', 'col-sm-6', 'col-md-4', 'col-lg-3', 'panel-$type'];
     var heading = new DivElement()..classes = ['panel-heading'];
     var title = new HeadingElement.h3()..classes = ['panel-title'];
     title.innerHtml = assign.id;
@@ -191,12 +202,18 @@ Element makeAssignment(Assignment assign) {
     item.append(body);
     var footer = new DivElement()..classes = ['panel-footer'];
     footer.style.position = 'relative';
-    var edit = new ButtonElement()..classes = ['btn', 'panel-btn']..innerHtml = 'Edit Assignment';
-    var view = new ButtonElement()..classes = ['btn', 'panel-btn']..innerHtml = 'View Submissions';
-    view.onClick.listen((e) => loadSubmissions(assign));
-    edit.onClick.listen((e) => createAssignment(assign));
-    footer.append(edit);
-    footer.append(view);
+    if (isCourseAdmin(currentCourse.id)) {
+        var edit = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-left']..innerHtml = 'Edit Assignment';
+        var view = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-right']..innerHtml = 'View Submissions';
+        view.onClick.listen((e) => loadSubmissions(assign));
+        edit.onClick.listen((e) => createAssignment(assign));
+        footer.append(edit);
+        footer.append(view);
+    } else {
+        var view = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn']..innerHtml = 'View Submissions';
+        view.onClick.listen((e) => loadSubmissions(assign));
+        footer.append(view);
+    }
     item.append(footer);
     return item;
 }
@@ -207,15 +224,15 @@ String formatTime(int millis) {
 }
 
 loadSubmissions(Assignment assign, {submissions: null}) async {
-    querySelector('.tab-submissions').innerHtml = '<a>Submissions (${assign.id})</a>';
     if (submissions == null) {
         submissions = await api.getSubmissions(assign.course, assign.id);
     }
-    submissions.sort();
     if (submissions.length == 0) {
         alert('No submissions are available for ${assign.course}/${assign.id}');
         return;
     }
+    querySelector('.tab-submissions').innerHtml = '<a>Submissions (${assign.id})</a>';
+    submissions.sort();
     var results = null;
     var directory = '${assign.course}-${assign.id}';
     bool canBatchGrade  =false;
@@ -393,6 +410,10 @@ alert(String message, [String type = 'danger']) {
     });
 }
 
+closeAlert() {
+    querySelector('.alert').style.display = 'none';
+}
+
 loadStudents() async {
     var allStudents = await api.getStudents();
     students = {};
@@ -448,6 +469,9 @@ loadStudents() async {
 }
 
 switchPage(String page) {
+    if (currentPage != page) {
+        closeAlert();
+    }
     currentPage = page;
     if (page == 'submissions') {
         querySelector('.tab-submissions').style.display = 'block';
@@ -514,9 +538,6 @@ registerCourse([String id, bool updating = false]) {
     });
     modal.show();
 }
-
-//https://github.com/dart-targets/enigma/tree/master/targets-dart
-//https://github.com/mvhs/targets-spy-app
 
 createAssignment([Assignment current]) {
     var element = querySelector('#registerAssignment');

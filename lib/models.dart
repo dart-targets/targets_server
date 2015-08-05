@@ -55,7 +55,7 @@ class Course {
     }
 }
 
-class Assignment {
+class Assignment extends Object with Comparable<Assignment> {
     
     @Field()
     String course;
@@ -80,6 +80,12 @@ class Assignment {
     
     @Field(model: 'download_code')
     String downloadCode;
+    
+    @override
+    int compareTo(Submission other) {
+        // order by time (newest first)
+        return other.deadline - deadline;
+    }
     
 }
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Targets Console</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.7/styles/googlecode.min.css">
     <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
@@ -34,7 +34,7 @@
             <li class='tab tab-editor requires-socket'><a>Editor <span class="badge">&beta;</span></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
+            <li class="dropdown socket-controls">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     <span class="socket-info"></span>
                 </a>
@@ -62,7 +62,7 @@
                 <!-- Assignments here -->
             </div>
         </div>
-        <button class='btn btn-primary btn-raised add-assignment'>Add Assignment</button>
+        <button class='btn-themed btn-teacher btn btn-raised btn-sm add-assignment'>Add Assignment</button>
         <h4>Enrolled Students</h4>
         <div class="list-group enrolled-students"></div>
         <h4>Unenrolled Students</h4>
@@ -72,15 +72,15 @@
         <div class='course-info'>
             <h3 class='course-name'></h3>
         </div>
-        <button class="btn btn-primary btn-raised btn-fab update-course mdi-editor-mode-edit" type="submit"></button>
+        <button class="btn-themed btn-teacher btn btn-raised btn-fab update-course mdi-editor-mode-edit" type="submit"></button>
     </div>
     <div class="page page-submissions">
         <div class="submission-sidebar"></div>
         <table class="submission-controls"><tr>
-            <td><button class="btn btn-raised btn-primary subm-btn socket-btn download-subm" type="submit">Download</button></td>
-            <td><button class="btn btn-raised btn-primary subm-btn socket-btn batch-grade" type="submit">Batch Grade</button></td>
-            <td><button class="btn btn-raised btn-primary subm-btn socket-btn download-batch" type="submit">Download and Batch Grade</button></td>
-            <td><button class="btn btn-raised btn-danger subm-btn delete-subm" type="submit">Delete Submissions</button></td>
+            <td><button class="btn btn-raised btn-themed subm-btn socket-btn download-subm" type="submit">Download</button></td>
+            <td><button class="btn btn-raised btn-themed subm-btn socket-btn batch-grade" type="submit">Batch Grade</button></td>
+            <td><button class="btn btn-raised btn-themed subm-btn socket-btn download-batch" type="submit">Download and Batch Grade</button></td>
+            <td><button class="btn btn-raised btn-teacher btn-danger subm-btn delete-subm hide" type="submit">Delete Submissions</button></td>
         </tr></table>
         <div class="submission-contents"></div>
     </div>
@@ -113,7 +113,7 @@
                 </fieldset></form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-raised" id="registerCourseButton">Register</button>
+                <button type="button" class="btn btn-themed btn-raised" id="registerCourseButton">Register</button>
             </div>
         </div>
     </div>
@@ -153,7 +153,7 @@
                 </fieldset></form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-raised" id="registerAssignButton">Create</button>
+                <button type="button" class="btn btn-themed btn-raised" id="registerAssignButton">Create</button>
             </div>
         </div>
     </div>
