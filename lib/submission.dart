@@ -27,16 +27,16 @@ validateSubmission(String md5) async {
         return "No assignment '${subm.assignment}' exists in course '${subm.course}'";
     }
     subm.time = new DateTime.now().millisecondsSinceEpoch;
-    if (subm.time.isBefore(assign.open)) {
+    if (subm.time < assign.open) {
         return "This assignment is not yet open to submissions. Please try again after ${assign.open}";
-    } else if (subm.time.isAfter(assign.close)) {
+    } else if (subm.time > assign.close) {
         return "This assignment is now closed to submissions as of ${assign.close}. Please contact your teacher if you need to submit.";
     }
     await db.execute("delete from submissions where course = @course and assignment = @assignment and student = @student", subm);
     await db.execute("insert into submissions (course, assignment, student, time, files, note) "
                     "values (@course, @assignment, @student, @time, @files, @note)", subm);
     await db.execute("delete from uploads where md5 = '$md5'");
-    if (subm.time.isAfter(assign.deadline)) {
+    if (subm.time >= assign.deadline) {
         return "Assignment submitted to course '${subm.course}' at ${subm.time}.\n"
                 "Note that this is after the deadline of ${assign.deadline}";
     }

@@ -1,6 +1,5 @@
 import 'dart:html';
 
-import 'package:targets_server/models.dart';
 import 'package:targets_server/websocket.dart';
 import 'package:targets_server/editor.dart' as editor;
 

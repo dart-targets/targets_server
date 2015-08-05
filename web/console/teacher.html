@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.7/styles/googlecode.min.css">
-    <link href='http://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <script src="//cdn.jsdelivr.net/highlight.js/8.7/highlight.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="editor.css">
@@ -29,19 +29,9 @@
                 <ul class="dropdown-menu course-list">
                 </ul>
             </li>
+            <li class="tab tab-home"><a>Home</a></li>
             <li class="tab tab-submissions"><a>Submissions</a></li>
-            <li class="tab tab-assignments"><a>Assignments</a></li>
-            <li class='tab tab-students'><a>Students</a></li>
             <li class='tab tab-editor requires-socket'><a>Editor <span class="badge">&beta;</span></a></li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <span>Options</span><span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu course-list">
-                    <li class='update-course'><a>Update Course</a></li>
-                    <li class='add-assignment'><a>Add Assignment</a></li>
-                </ul>
-            </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
@@ -65,6 +55,25 @@
     </div>
 </nav>
 <div class="main">
+    <div class="page page-home">
+        <h4>Assignments</h4>
+        <div class="container-fluid assignment-container">
+            <div class="row assignments">
+                <!-- Assignments here -->
+            </div>
+        </div>
+        <button class='btn btn-primary btn-raised add-assignment'>Add Assignment</button>
+        <h4>Enrolled Students</h4>
+        <div class="list-group enrolled-students"></div>
+        <h4>Unenrolled Students</h4>
+        <div class="list-group unenrolled-students"></div>
+        <h4>Allowed Domains</h4>
+        <div class="list-group allowed-domains"></div>
+        <div class='course-info'>
+            <h3 class='course-name'></h3>
+        </div>
+        <button class="btn btn-primary btn-raised btn-fab update-course mdi-editor-mode-edit" type="submit"></button>
+    </div>
     <div class="page page-submissions">
         <div class="submission-sidebar"></div>
         <table class="submission-controls"><tr>
@@ -75,21 +84,6 @@
         </tr></table>
         <div class="submission-contents"></div>
     </div>
-    <div class="page page-assignments">
-        <div class="container-fluid assignment-container">
-            <div class="row assignments">
-                <!-- Assignments here -->
-            </div>
-        </div>
-    </div>
-    <div class="page page-students">
-        <h5>Enrolled Students</h5>
-        <div class="list-group enrolled-students"></div>
-        <h5>Unenrolled Students</h5>
-        <div class="list-group unenrolled-students"></div>
-        <h5>Allowed Domains</h5>
-        <div class="list-group allowed-domains"></div>
-    </div>
     <div class="page page-editor">
         <div class="editor" id="editor"></div>
     </div>
@@ -97,20 +91,72 @@
 
 <!-- Modals -->
 <div class="modal fade" id="registerCourse" tabindex="-1" role="dialog" aria-labelledby="registerCourseLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="registerCourseLabel">Register Course</h4>
-      </div>
-      <div class="modal-body">
-        The proper buttons go here
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Register</button>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="registerCourseLabel">Register Course</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal"><fieldset>
+                    <label for="inputCourseID" class="col-lg-2 control-label">Course ID</label>
+                    <div class="col-lg-10"><select class="form-control" id="inputCourseID"></select></div>
+                    <label for="inputCourseName" class="col-lg-2 control-label">Name</label>
+                    <div class="col-lg-10">
+                        <input type="text" class="form-control" id="inputCourseName" placeholder="Course Name"/>
+                    </div>
+                    <label for="inputAllowedStudents" class="col-lg-2 control-label">Allowed Students</label>
+                    <div class="col-lg-10">
+                        <textarea class="form-control" rows="10" id="inputAllowedStudents"></textarea>
+                        <span class="help-block">Enter email addresses one per line, or "@domain.com" to allow all emails in the domain.</span>
+                    </div>
+                </fieldset></form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-raised" id="registerCourseButton">Register</button>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
+
+<div class="modal fade" id="registerAssignment" tabindex="-1" role="dialog" aria-labelledby="registerAssignLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="registerAssignLabel">Create Assignment</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal"><fieldset>
+                    <label for="inputTemplateURL" class="col-lg-3 control-label">Template URL</label>
+                    <div class="col-lg-9">
+                        <input type='url' class="form-control" id="inputTemplateURL"/>
+                        <span class="help-block template-info"></span>
+                    </div>
+                    <label for="inputAssignOpen" class="col-lg-3 control-label">Opens At</label>
+                    <div class="col-lg-9">
+                        <input type="datetime-local" class="form-control" id="inputAssignOpen"/>
+                        <span class="help-block">Students will not be able to submit until this time.</span>
+                    </div>
+                    
+                    <label for="inputAssignDeadline" class="col-lg-3 control-label">Deadline</label>
+                    <div class="col-lg-9">
+                        <input type="datetime-local" class="form-control" id="inputAssignDeadline"/>
+                        <span class="help-block">Submissions made after this time will be marked late.</span>
+                    </div>
+                    
+                    <label for="inputAssignClose" class="col-lg-3 control-label">Closes At</label>
+                    <div class="col-lg-9">
+                        <input type="datetime-local" class="form-control" id="inputAssignClose"/>
+                        <span class="help-block">Students will not be able to submit after this time.</span>
+                    </div>
+                </fieldset></form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-raised" id="registerAssignButton">Create</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Alerts -->

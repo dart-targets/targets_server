@@ -40,7 +40,7 @@ loadEditor(Element element, {whenDone: null}) async {
     });
 }
 
-TreeComponent buildTree() async {
+buildTree() async {
     var files = await getDirectoryTree();
     
     var roots = [];
@@ -120,6 +120,12 @@ class TreeListener extends TreeNodeListener {
         refreshTabs();
         editor.session = session;
     }
+    
+    @override
+    onExpandAction(TreeNode node) => null;
+    
+    @override
+    onCheckAction(TreeNode node) => null;
 
 }
 
@@ -132,7 +138,7 @@ closeEditor() {
 }
 
 class Tab {
-    EditSession session;
+    var session;
     String filename;
     Element element;
     String text;
@@ -145,7 +151,7 @@ int currentTab = 0;
 refreshTabs() {
     var tabBar = querySelectorAll(".editor-tabs")[0];
     tabBar.innerHtml = "";
-    int width = tabBar.clientWidth / tabs.length;
+    int width = (tabBar.clientWidth / tabs.length) as int;
     for (int i = 0; i < tabs.length; i++) {
         Tab tab = tabs[i];
         tab.element.classes.clear();

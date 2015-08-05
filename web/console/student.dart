@@ -13,6 +13,6 @@ main() {
 
 start() async {
     var info = await api.userInfo();
-    querySelector('#profile').src = info['image'];
+    (querySelector('#profile') as ImageElement).src = info['image'];
     querySelector('#info').innerHtml = "${info['name']} (${info['email']})";
 }

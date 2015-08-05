@@ -16,12 +16,16 @@ var userInfo;
 
 String currentPage;
 
-List<String> pages = ['submissions', 'assignments', 'students', 'editor'];
+List<String> pages = ['home', 'submissions', 'editor'];
+
+List<Assignment> assignments = [];
 
 Course currentCourse;
 
 List<Course> courses = [];
 List<String> courseIds = [];
+
+List<String> githubCourses = [];
 
 Map<String, Student> students = {};
 
@@ -32,18 +36,24 @@ main() {
     Dropdown.use();
     Modal.use();
     Transition.use();
+    querySelector('.tab-submissions').style.display = 'none';
+    querySelector('.tab-editor').style.display = 'none';
     loadUserInfo().then((e)=>initUI());
 }
 
 loadUserInfo() async {
     userInfo = await api.userInfo();
     (querySelector('.user-image') as ImageElement).src = userInfo['image'];
-    querySelector('.user-name').innerHtml = userInfo['name'];
+    if (userInfo.containsKey('name') && userInfo['name'] != null) {
+        querySelector('.user-name').innerHtml = userInfo['name'];
+    } else {
+        querySelector('.user-name').innerHtml = userInfo['username'];
+    }
     var courseList = querySelector('.course-list');
     courseList.innerHtml = "";
-    var courses = [userInfo['username']];
-    for (var org in userInfo['orgs']) courses.add(org);
-    for (var course in courses) {
+    githubCourses = [userInfo['username']];
+    for (var org in userInfo['orgs']) githubCourses.add(org);
+    for (var course in githubCourses) {
         var item = new Element.li();
         var link = new Element.a();
         link.innerHtml = course;
@@ -55,11 +65,15 @@ loadUserInfo() async {
 }
 
 initUI() async {
-    switchPage('assignments');
+    switchPage('home');
     connectToClient();
     for (var page in pages) {
         querySelector('.tab-$page').onClick.listen((e)=>switchPage(page));
     }
+    querySelector('.update-course').onClick.listen((e){
+        registerCourse(currentCourse.id, true);
+    });
+    querySelector('.add-assignment').onClick.listen((e)=>createAssignment());
     await findCourses();
 }
 
@@ -100,14 +114,18 @@ loadEditor() {
     editor.loadEditor(element, whenDone: loadEditor);
 }
 
-findCourses() async {
+findCourses([String preferredCourse]) async {
     courses = await api.getCourses();
     courseIds = [];
     for (var course in courses) courseIds.add(course.id);
     if (courses.length == 0) {
-        // register a course  
+        registerCourse();  
     } else {
-        switchCourse(courses[0].id);
+        if (preferredCourse == null) {
+            if (courseIds.contains(userInfo['username'])) {
+                switchCourse(userInfo['username']);
+            } else switchCourse(courses[0].id);
+        } else switchCourse(preferredCourse);
     }
 }
 
@@ -117,7 +135,7 @@ isCourseAdmin(String course) {
 
 switchCourse(String courseId) async {
     if (!courseIds.contains(courseId)) {
-        // register a course
+        registerCourse(courseId);
         return;
     }
     for (var course in courses) {
@@ -129,12 +147,13 @@ switchCourse(String courseId) async {
     } else {
         querySelector('.console-title').innerHtml = "Grader Console";
     }
+    querySelector('.course-name').innerHtml = currentCourse.name;
     loadAssignments();
     loadStudents();
 }
 
 loadAssignments() async {
-    var assignments = await api.getAssignments(currentCourse.id);
+    assignments = await api.getAssignments(currentCourse.id);
     var container = querySelector('.assignments');
     container.innerHtml = "";
     for (var assign in assignments) {
@@ -165,9 +184,9 @@ Element makeAssignment(Assignment assign) {
     body.append(new DivElement()..innerHtml="<b>Deadline:</b>&nbsp;$deadline");
     body.append(new DivElement()..innerHtml="<b>Close:</b>&nbsp;$close");
     var template = new DivElement()..innerHtml="<b>Template:</b>&nbsp;";
-    template.append(new Element.a()..target='_blank'..href=assign.githubUrl..innerHtml=assign.downloadCode);
+    template.append(new AnchorElement()..target='_blank'..href=assign.githubUrl..innerHtml=assign.downloadCode);
     body.append(template);
-    body.append(new DivElement()..innerHtml="<b>Note:</b>&nbsp;${assign.note}");
+    //body.append(new DivElement()..innerHtml="<b>Note:</b>&nbsp;${assign.note}");
     item.append(heading);
     item.append(body);
     var footer = new DivElement()..classes = ['panel-footer'];
@@ -175,6 +194,7 @@ Element makeAssignment(Assignment assign) {
     var edit = new ButtonElement()..classes = ['btn', 'panel-btn']..innerHtml = 'Edit Assignment';
     var view = new ButtonElement()..classes = ['btn', 'panel-btn']..innerHtml = 'View Submissions';
     view.onClick.listen((e) => loadSubmissions(assign));
+    edit.onClick.listen((e) => createAssignment(assign));
     footer.append(edit);
     footer.append(view);
     item.append(footer);
@@ -187,6 +207,7 @@ String formatTime(int millis) {
 }
 
 loadSubmissions(Assignment assign, {submissions: null}) async {
+    querySelector('.tab-submissions').innerHtml = '<a>Submissions (${assign.id})</a>';
     if (submissions == null) {
         submissions = await api.getSubmissions(assign.course, assign.id);
     }
@@ -389,23 +410,26 @@ loadStudents() async {
     var enrolledList = querySelector('.enrolled-students');
     enrolledList.innerHtml = "";
     for (var s in studentList) {
-        var item = new Element.a();
+        var item = new Element.li();
         item.classes.add('list-group-item');
         item.innerHtml = "${s.name} (${s.email})";
         enrolledList.append(item);
     }
     var unenrolledList = querySelector('.unenrolled-students');
     unenrolledList.innerHtml = "";
+    var alreadyRegistered = [];
     for (var s in unenrolled) {
-        var item = new Element.a();
+        var item = new Element.li();
         item.classes.add('list-group-item');
         item.innerHtml = "${s.name} (${s.email})";
         unenrolledList.append(item);
+        alreadyRegistered.add(s.email);
     }
     currentCourse.allowedStudents.sort();
     for (var s in currentCourse.allowedStudents) {
-        if (!s.startsWith('@') && !currentCourse.enrolledStudents.contains(s)) {
-            var item = new Element.a();
+        if (!s.startsWith('@') && !currentCourse.enrolledStudents.contains(s) &&
+                !alreadyRegistered.contains(s)) {
+            var item = new Element.li();
             item.classes.add('list-group-item');
             item.innerHtml = s;
             unenrolledList.append(item);
@@ -415,7 +439,7 @@ loadStudents() async {
     allowedDomains.innerHtml = "";
     for (var s in currentCourse.allowedStudents) {
         if (s.startsWith('@')) {
-            var item = new Element.a();
+            var item = new Element.li();
             item.classes.add('list-group-item');
             item.innerHtml = s;
             allowedDomains.append(item);
@@ -425,11 +449,195 @@ loadStudents() async {
 
 switchPage(String page) {
     currentPage = page;
-    querySelector('.tab-submissions').style.display = page == 'submissions' ? 'block' : 'none';
+    if (page == 'submissions') {
+        querySelector('.tab-submissions').style.display = 'block';
+    }
     querySelectorAll('.page').style.display = 'none';
     querySelector('.page-$page').style.display = 'block';
     querySelectorAll('.tab').classes.remove('active');
     querySelector('.tab-$page').classes.add('active');
 }
 
+registerCourse([String id, bool updating = false]) {
+    if (id != null && id != userInfo['username'] && !userInfo['ownedOrgs'].contains(id)) {
+        alert('You must be an owner of the "$id" GitHub organization to register it.');
+        return;
+    }
+    var element = querySelector('#registerCourse');
+    if (updating) {
+        querySelector('#registerCourseLabel').innerHtml = "Update Course";
+        querySelector('#registerCourseButton').innerHtml = "Update";
+    } else {
+        querySelector('#registerCourseLabel').innerHtml = "Register Course";
+        querySelector('#registerCourseButton').innerHtml = "Register";
+    }
+    var idInput = querySelector('#inputCourseID');
+    var nameInput = querySelector('#inputCourseName');
+    var studentInput = querySelector('#inputAllowedStudents');
+    idInput.innerHtml = '';
+    if (id != null) {
+        idInput.appendHtml('<option>$id</option>');
+        if (updating) {
+            nameInput.value = currentCourse.name;
+            studentInput.value = currentCourse.allowedStudents.join('\n');
+        } else {
+            nameInput.value = "";
+            studentInput.value = "";
+        }
+    } else {
+        var toRegister = [];
+        if (!courseIds.contains(userInfo['username'])) {
+            toRegister.add(userInfo['username']);
+        }
+        for (var courseId in userInfo['ownedOrgs']) {
+            if (!courseIds.contains(courseId)) {
+                toRegister.add(courseId);
+            }
+        }
+        for (var course in toRegister) {
+            idInput.appendHtml('<option>$course</option>');
+        }
+    }
+    Modal modal = Modal.wire(element);
+    querySelector("#registerCourseButton").onClick.listen((e) async {
+        if (updating) {
+            alert('Updating course...', 'info');
+        } else alert('Registering course...', 'info');
+        String id = idInput.value;
+        String name = nameInput.value;
+        List<String> allowedStudents = studentInput.value.split("\n");
+        Course course = new Course()..id = id..name = name..allowedStudents = allowedStudents;
+        var result = await api.registerCourse(course);
+        alert(result, 'success');
+        await findCourses(id);
+        modal.hide();
+    });
+    modal.show();
+}
 
+//https://github.com/dart-targets/enigma/tree/master/targets-dart
+//https://github.com/mvhs/targets-spy-app
+
+createAssignment([Assignment current]) {
+    var element = querySelector('#registerAssignment');
+    Modal modal = Modal.wire(element);
+    var label = querySelector('#registerAssignLabel');
+    var button = querySelector('#registerAssignButton');
+    var url = querySelector('#inputTemplateURL');
+    var templateInfo = querySelector('.template-info');
+    var open = querySelector('#inputAssignOpen');
+    var deadline = querySelector('#inputAssignDeadline');
+    var close = querySelector('#inputAssignClose');
+    String getId(String url) {
+        String dir = url.startsWith('https://') ? url.substring(19) : url.substring(18);
+        var parts = dir.split('/');
+        if (parts.length == 2) {
+            if (parts[1].startsWith('targets-')) {
+                return parts[1].substring(8);
+            }
+        } else if (parts.length >= 5) {
+            if (parts.last.startsWith('targets-')) {
+                String code = parts[1];
+                for (int i = 4; i < parts.length - 1; i++) {
+                    code += '-' + parts[i];
+                }
+                code += '-' + parts.last.substring(8);
+                return code;
+            }
+        }
+        return null;
+    }
+    String getDownloadCode(String url) {
+        String dir = url.startsWith('https://') ? url.substring(19) : url.substring(18);
+        var parts = dir.split('/');
+        String owner = parts[0];
+        String ownerCode = currentCourse.id == owner ? owner : '${currentCourse.id}:$owner';
+        if (parts.length == 2) {
+            if (parts[1].startsWith('targets-')) {
+                return ownerCode + '/' + parts[1].substring(8);
+            }
+        } else if (parts.length >= 5) {
+            if (parts.last.startsWith('targets-')) {
+                String code = parts[1];
+                for (int i = 4; i < parts.length - 1; i++) {
+                    code += '/' + parts[i];
+                }
+                code += '/' + parts.last.substring(8);
+                return '$ownerCode/$code';
+            }
+        }
+        return null;
+    }
+    bool isValid(String url) {
+        if (!url.startsWith('https://github.com/') && !url.startsWith('http://github.com/')) {
+            return false;
+        }
+        if (!url.contains('/targets-')) return false;
+        if (getDownloadCode(url) == null) return false;
+        return true;
+    }
+    updateInfo([e]){
+        var address = url.value;
+        if (!isValid(address)) {
+            templateInfo.innerHtml = "URL must link to a Targets template on GitHub";
+            return;
+        }
+        var id = getId(address);
+        var code = getDownloadCode(address);
+        templateInfo.innerHtml = "Assignment ID: $id<br>Download Code: $code";
+    }
+    url.onChange.listen(updateInfo);
+    if (current != null) {
+        label.innerHtml = "Update Assignment";
+        button.innerHtml = "Update";
+        url.value = current.githubUrl;
+        updateInfo();
+        open.value = new DateTime.fromMillisecondsSinceEpoch(current.open).toIso8601String();
+        deadline.value = new DateTime.fromMillisecondsSinceEpoch(current.deadline).toIso8601String();
+        close.value = new DateTime.fromMillisecondsSinceEpoch(current.close).toIso8601String();
+    } else {
+        label.innerHtml = "Create Assignment";
+        button.innerHtml = "Create";
+        url.value = "";
+        updateInfo();
+        var now = new DateTime.now();
+        now = now.subtract(new Duration(milliseconds: now.millisecond, seconds: now.second));
+        open.value = now.toIso8601String();
+        deadline.value = now.add(new Duration(days: 7)).toIso8601String();
+        close.value = now.add(new Duration(days: 14)).toIso8601String();
+    }
+    button.onClick.listen((e) async {
+        Assignment assign = new Assignment();
+        if (!isValid(url.value)) {
+            alert('Invalid template URL. Please use the URL of a valid Targets template.');
+            return;
+        }
+        assign.githubUrl = url.value;
+        assign.downloadCode = getDownloadCode(url.value);
+        assign.id = getId(url.value);
+        assign.course = currentCourse.id;
+        try {
+            assign.open = DateTime.parse(open.value).millisecondsSinceEpoch;
+            assign.deadline = DateTime.parse(deadline.value).millisecondsSinceEpoch;
+            assign.close = DateTime.parse(close.value).millisecondsSinceEpoch;
+        } catch (ex) {
+            alert("Invalid timestamp. If you're having trouble with entering timestamp, please use Google Chrome.");
+            return;
+        }
+        if (assign.open >= assign.deadline || assign.deadline > assign.close || assign.open >= assign.close) {
+            alert("Assignments must open before their deadline and close after their deadline.");
+            return;
+        }
+        for (Assignment existing in assignments) {
+            if (existing.id == assign.id) {
+                alert('An assignment with ID "${assign.id}" already exists in this course.');
+                return;
+            }
+        }
+        var result = await api.registerAssignment(assign);
+        alert(result, 'success');
+        loadAssignments();
+        modal.hide();
+    });
+    modal.show();
+}

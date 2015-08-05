@@ -83,7 +83,7 @@ class Assignment {
     
 }
 
-class Submission {
+class Submission extends Object with Comparable<Submission> {
     
     @Field()
     String course;
@@ -104,7 +104,7 @@ class Submission {
     String note;
     
     @override
-    int compareTo(Student other) {
+    int compareTo(Submission other) {
         // order by time (newest first)
         return other.time - time;
     }

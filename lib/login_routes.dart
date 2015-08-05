@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:redstone/server.dart' as app;
-import 'package:targets_server/login.dart' as login;
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
@@ -30,8 +29,6 @@ googleLogin(@app.Body(app.FORM) Map form) async {
 
 @app.Route('/login/github')
 githubLogin(@app.QueryParam("code") String code, @app.QueryParam("state") String state) async {
-    String id = Platform.environment['GITHUB_CLIENT_ID'];
-    String secret = Platform.environment['GITHUB_CLIENT_SECRET'];
     if (state != app.request.session['github_auth_state']) {
         app.request.session.destroy();
         app.redirect('/console/');

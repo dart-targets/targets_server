@@ -27,8 +27,11 @@ Future<String> post(String path, String data) async {
         path = '/$path';
     }
     String url = apiRoot + path;
+    var headers = {
+        'Content-Type': 'application/json'
+    };
     var response = await HttpRequest.request(url, method: 'POST', 
-                    mimeType:'application/json', sendData: data);
+                    mimeType:'application/json', requestHeaders: headers, sendData: data);
     if (response.status >= 300) return null;
     return response.responseText;
 }
@@ -52,7 +55,7 @@ Future<Student> getStudent(String email) async {
 
 Future<String> registerStudent(Student student) async {
     String data = mapper.encodeJson(student);
-    return post('/register/student', data);;
+    return post('/register/student', data);
 }
 
 Future<List<Course>> getCourses() async {

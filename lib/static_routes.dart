@@ -8,7 +8,7 @@ import 'package:targets_server/login.dart' as login;
 
 String webDir = join(dirname(dirname(Platform.script.toFilePath())), 'web');
 
-Handler makeHandler() => createStaticHandler(webDir, defaultDocument: 'index.html', serveFilesOutsidePath: true);
+makeHandler() => createStaticHandler(webDir, defaultDocument: 'index.html', serveFilesOutsidePath: true);
 
 @app.Interceptor(r'/console.*')
 consoleBlocker() {

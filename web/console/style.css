@@ -120,6 +120,11 @@
     background: #fcf8e3;
 }
 
+.modal-body div {
+    padding-top: 3px;
+    padding-bottom: 8px;
+}
+
 .results-table {
     text-align: right;
     width: 100%;
@@ -140,4 +145,18 @@
 
 .submission-selected, .submission-selected:hover {
     background: rgba(0,0,0,0.1);
+}
+
+.course-info {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    text-align: right;
+}
+
+.update-course {
+    z-index: 20;
+    position: fixed;
+    bottom: 8px;
+    right: 8px;
 }
