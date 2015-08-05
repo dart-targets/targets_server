@@ -164,5 +164,3 @@ batchGrade(String directory) async {
     });
     return resp['results'];
 }
-
-

@@ -95,7 +95,7 @@ connectToClient() {
         querySelectorAll('.requires-socket').style.display = 'none';
         querySelectorAll('.socket-btn').classes.add('disabled');
         if (currentPage == "editor") {
-            switchPage('assignments');
+            switchPage('home');
         }
     };
     socketInfo.innerHtml = "Loading...";
@@ -172,6 +172,7 @@ loadAssignments() async {
 }
 
 Element makeAssignment(Assignment assign) {
+    var wrapper = new DivElement()..classes = ['assignment-wrapper', 'col-xs-12', 'col-sm-6', 'col-md-4', 'col-lg-3'];
     var now = new DateTime.now().millisecondsSinceEpoch;
     var item = new DivElement();
     String type;
@@ -182,7 +183,7 @@ Element makeAssignment(Assignment assign) {
     } else {
         type = 'success';
     }
-    item.classes = ['assignment', 'panel', 'col-xs-11', 'col-sm-6', 'col-md-4', 'col-lg-3', 'panel-$type'];
+    item.classes = ['assignment', 'panel', 'panel-$type'];
     var heading = new DivElement()..classes = ['panel-heading'];
     var title = new HeadingElement.h3()..classes = ['panel-title'];
     title.innerHtml = assign.id;
@@ -215,7 +216,8 @@ Element makeAssignment(Assignment assign) {
         footer.append(view);
     }
     item.append(footer);
-    return item;
+    wrapper.append(item);
+    return wrapper;
 }
 
 String formatTime(int millis) {
@@ -280,7 +282,9 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
             if (results != null) {
                 contents.append(makeGradeTable(results, withOnly: student.email));
             }
-            contents.appendHtml("<b>Note:</b> ${subm.note}");
+            if (subm.note != null && subm.note != '') {
+                contents.appendHtml("<b>Note:</b> ${subm.note}");
+            }
             for (String filename in subm.files.keys) {
                 String data = subm.files[filename];
                 data = data.replaceAll("<", "&lt;").replaceAll(">", "&gt;");

@@ -146,11 +146,35 @@ assignmentList(String course) async {
     return db.query("select * from assignments where course = '$course'", Assignment);
 }
 
+/// Lists all assignments for the current student
+@app.Route("/assignments")
+@Encode()
+allAssignments(String course) async {
+    if (!login.isStudent()) {
+        app.chain.interrupt(statusCode: HttpStatus.UNAUTHORIZED);
+        return;
+    }
+    Student me = await studentInfo(login.getGoogleEmail());
+    Assignment assigns = [];
+    for (String course in me.courses) {
+        assigns.addAll(await assignmentList(course));
+    }
+    return assigns;
+}
+
 /// Lists all submissions for the given assignment
 @app.Route("/submissions/:course/:assign")
 @Encode()
 submissionsList(String course, String assign) async {
     return requireRead(db.query("select * from submissions where course = '$course' and assignment = '$assign'", Submission));
+}
+
+/// Lists all submissions from the given student
+@app.Route("/student/:email/submissions")
+@Encode()
+studentSubmissions(String email) async {
+    await studentInfo(email);
+    return db.query("select * from submissions where student = '$email'", Submission);
 }
 
 first(Future dbResponse) async {

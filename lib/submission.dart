@@ -37,15 +37,18 @@ validateSubmission(String md5) async {
                     "values (@course, @assignment, @student, @time, @files, @note)", subm);
     await db.execute("delete from uploads where md5 = '$md5'");
     if (subm.time >= assign.deadline) {
-        return "Assignment submitted to course '${subm.course}' at ${subm.time}.\n"
+        return "Assignment submitted to course '${subm.course}' at ${subm.time}. "
                 "Note that this is after the deadline of ${assign.deadline}";
     }
     return "Assignment successfully submitted to course '${subm.course}' at ${subm.time}";
 }
 
+
 // Finds an upload with the given MD5 hash
+@app.Route("/upload/:md5")
+@Encode()
 findUpload(String md5) async {
-    return first(db.query("select * from uploads where md5 = '$md5'", Submission));
+    return requireWrite(first(db.query("select * from uploads where md5 = '$md5'", Submission)));
 }
 
 // Removes uploads that are older than 10 minutes

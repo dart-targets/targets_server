@@ -151,7 +151,7 @@ int currentTab = 0;
 refreshTabs() {
     var tabBar = querySelectorAll(".editor-tabs")[0];
     tabBar.innerHtml = "";
-    int width = (tabBar.clientWidth / tabs.length) as int;
+    int width = (tabBar.clientWidth / tabs.length).round();
     for (int i = 0; i < tabs.length; i++) {
         Tab tab = tabs[i];
         tab.element.classes.clear();

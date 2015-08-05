@@ -3,15 +3,128 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Targets Console</title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.7/styles/googlecode.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <script src="//cdn.jsdelivr.net/highlight.js/8.7/highlight.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="editor.css">
 </head>
 <body>
-    Student Version
-    <!-- Body Here --><br>
-    <img style='width:50px;height:50px' id='profile'/>
-    <span id='info'></span>
+<nav class="navbar navbar-success">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img class='logo' alt="Targets" src="/dartboard.png">
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a class='console-title'>Student Console</a></li>
+            <li class="tab tab-home"><a>Assignments</a></li>
+            <li class="tab tab-submissions"><a>Submissions</a></li>
+            <li class='tab tab-editor requires-socket'><a>Editor <span class="badge">&beta;</span></a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown socket-controls">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="socket-info"></span>
+                </a>
+                <ul class="dropdown-menu">
+                <li class='socket-reconnect'><a>Reconnect</a></li>
+                <li class='socket-update'><a>Update</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <img class='user-image' src=""/> <span class="user-name">Loading...</span> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                <li><a href="/logout">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="main">
+    <div class="page page-home">
+        <div class="container-fluid assignment-container">
+            <div class="row assignments">
+                <!-- Assignments here -->
+            </div>
+        </div>
+        <button class="btn-success btn btn-raised btn-fab enroll mdi-social-group-add" tooltip="Enroll in a Course" type="submit"></button>
+    </div>
+    <div class="page page-submissions">
+        <div class="submission-sidebar" style="top:0;height:100%"></div>
+        <div class="submission-contents" style="top:0;height:100%"></div>
+    </div>
+    <div class="page page-editor">
+        <div class="editor" id="editor"></div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="uploadLabel">Upload Submission</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal"><fieldset>
+                    <input type="text" class="form-control" id="inputNote" placeholder="Note to Teacher"/>
+                    <span class="help-block">If you have a brief note you want to attach to your submission 
+                    (e.g. an explanation for why it's late), add it here. Use comments instead if your note is specific to a piece of code.</span>
+                </fieldset></form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success btn-raised" id="uploadButton">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="validateModal" tabindex="-1" role="dialog" aria-labelledby="validateLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="uploadLabel">Validate Submission</h4>
+            </div>
+            <div class="modal-body">
+                <div>Review the code below and confirm that you want to submit it.</div>
+                <div class='validation-info'></div>
+                <div class='upload-contents'></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success btn-raised" id="validateButton">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Output -->
+
+<div class="test-output-wrapper">
+    <div class="test-output-modal">
+<pre><span class='test-directory'></span>
+<span style='color:#0f0'>$</span> targets check<span class='test-output'></span></pre>
+    </div>
+</div>
+
+<!-- Alert -->
+<div class="alert alert-dismissible" role="alert">
+  <button type="button" class="close alert-close" aria-label="Close">&times;</button>
+  <span class='alert-text'></span>
+</div>
+
 <script type="application/dart" src="student.dart"></script>
 <script data-pub-inline src="packages/browser/dart.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js"></script>
 </body>
 </html>

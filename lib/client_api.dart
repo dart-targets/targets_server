@@ -100,3 +100,24 @@ Future<List<Submission>> getSubmissions(String course, String assign) async {
     var decoded = JSON.decode(resp);
     return mapper.decode(decoded, Submission);
 }
+
+Future<List<Submission>> getStudentSubmissions(String student) async {
+    String resp = await get('/student/$student/submissions');
+    if (resp == null) return null;
+    var decoded = JSON.decode(resp);
+    return mapper.decode(decoded, Submission);
+}
+
+Future<List<Assignment>> getAllAssignments() async {
+    String resp = await get('/assignments');
+    if (resp == null) return null;
+    var decoded = JSON.decode(resp);
+    return mapper.decode(decoded, Assignment);
+}
+
+Future<Submission> getUpload(String md5) async {
+    String resp = await get('/upload/$md5');
+    return resp == null ? resp : mapper.decodeJson(resp, Submission);
+}
+
+Future<String> validateSubmission(String md5) => get('/validate/$md5');
