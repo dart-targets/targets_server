@@ -628,10 +628,12 @@ createAssignment([Assignment current]) {
             alert("Assignments must open before their deadline and close after their deadline.");
             return;
         }
-        for (Assignment existing in assignments) {
-            if (existing.id == assign.id) {
-                alert('An assignment with ID "${assign.id}" already exists in this course.');
-                return;
+        if (current == null) {
+            for (Assignment existing in assignments) {
+                if (existing.id == assign.id) {
+                    alert('An assignment with ID "${assign.id}" already exists in this course.');
+                    return;
+                }
             }
         }
         var result = await api.registerAssignment(assign);
