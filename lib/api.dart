@@ -15,6 +15,13 @@ part 'submission.dart';
 
 PostgreSql get db => app.request.attributes.dbConn;
 
+/// Keeps session alive
+@app.Route("/ping")
+ping() {
+    print("ping")
+    return "pong";
+}
+
 /// Gets info about logged in user, if any
 @app.Route("/user")
 userInfo() {
@@ -152,10 +159,10 @@ assignmentList(String course) async {
 allAssignments(String course) async {
     if (!login.isStudent()) {
         app.chain.interrupt(statusCode: HttpStatus.UNAUTHORIZED);
-        return;
+        return null;
     }
     Student me = await studentInfo(login.getGoogleEmail());
-    Assignment assigns = [];
+    List<Assignment> assigns = [];
     for (String course in me.courses) {
         assigns.addAll(await assignmentList(course));
     }

@@ -15,15 +15,20 @@ import 'package:targets_server/static_routes.dart' as static_routes;
 @app.Install(urlPrefix: '/')
 import 'package:targets_server/login_routes.dart';
 
-main(raw_args) {
+main(raw_args) async {
     var args = parseArgs(raw_args);
     app.setShelfHandler(static_routes.makeHandler());
     String uri = Platform.environment['POSTGRES_URI'];
     var dbManager = new PostgreSqlManager(uri);
     app.addPlugin(getMapperPlugin(dbManager));
     app.setupConsoleLog();
-    app.start(port: int.parse(args['port']));
+    app.setUp();
     dbManager.getConnection().then((db)=>initDatabase(db));
+    var requestServer = await HttpServer.bind(InternetAddress.ANY_IP_V4, int.parse(args['port']));
+    requestServer.sessionTimeout = 8 * 60 * 60; // eight hour session lasts entire school day
+    await for (var request in requestServer) {
+        app.handleRequest(request);
+    }
 }
 
 ArgResults parseArgs(args) {

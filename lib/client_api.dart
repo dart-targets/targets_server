@@ -5,21 +5,25 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:redstone_mapper/mapper.dart' as mapper;
-
 import 'package:targets_server/models.dart';
 
 /// Provides an interface for the client to make API requests to the server.
 
 String apiRoot = '/api/v1';
 
+
 Future<String> get(String path) async {
     if (!path.startsWith('/')) {
         path = '/$path';
     }
     String url = apiRoot + path;
-    var response = await HttpRequest.request(url);
-    if (response.status >= 300) return null;
-    return response.responseText;
+    try {
+        var response = await HttpRequest.request(url);
+        if (response.status >= 300) return null;
+        return response.responseText;
+    } catch (ex) {
+        refresh();
+    }
 }
 
 Future<String> post(String path, String data) async {
@@ -30,10 +34,18 @@ Future<String> post(String path, String data) async {
     var headers = {
         'Content-Type': 'application/json'
     };
-    var response = await HttpRequest.request(url, method: 'POST', 
-                    mimeType:'application/json', requestHeaders: headers, sendData: data);
-    if (response.status >= 300) return null;
-    return response.responseText;
+    try {
+        var response = await HttpRequest.request(url, method: 'POST', 
+                        mimeType:'application/json', requestHeaders: headers, sendData: data);
+        if (response.status >= 300) return null;
+        return response.responseText;
+    } catch (ex) {
+        refresh();
+    }
+}
+
+void refresh() {
+    window.location.assign(window.location.href);
 }
 
 Future<Map> userInfo() async {

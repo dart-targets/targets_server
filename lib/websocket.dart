@@ -2,6 +2,7 @@ library websocket;
 
 import 'dart:html';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:redstone_mapper/mapper.dart' as mapper;
 
@@ -12,6 +13,8 @@ String clientDirectory;
 String clientVersion;
 
 bool socketConnected = false;
+
+var validVersions = ['0.8', '0.9'];
 
 connectBackground({server: 'ws://localhost:7620'}) {
     socket = new WebSocket(server);
@@ -33,9 +36,13 @@ connectBackground({server: 'ws://localhost:7620'}) {
         }
     });
 
-    socket.onClose.listen((Event e) {
+    socket.onClose.listen((CloseEvent e) async {
         socketConnected = false;
         onSocketDisconnected();
+        if (e.code == 1001) {
+            await new Future.delayed(new Duration(seconds: 3));
+            connectBackground(server: server);
+        }
     });
 }
 

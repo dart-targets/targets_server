@@ -66,6 +66,14 @@ loadUserInfo() async {
 
 initUI() async {
     switchPage('home');
+    querySelector('.socket-reconnect').onClick.listen((e)=>connectToClient());
+    querySelector('.socket-update').onClick.listen((e){
+        querySelector('.socket-info').innerHtml = "Updating...";
+        requestUpdate();
+    });
+    querySelector('.alert-close').onClick.listen((e){
+        elem.style.display = 'none'; 
+    });
     connectToClient();
     for (var page in pages) {
         querySelector('.tab-$page').onClick.listen((e)=>switchPage(page));
@@ -79,32 +87,33 @@ initUI() async {
 
 connectToClient() {
     var socketInfo = querySelector('.socket-info');
-    bool isUpdating = false;
     onSocketConnected = () {
         loadEditor();
         socketInfo.innerHtml = "Client Connected";
         querySelectorAll('.requires-socket').style.display = 'block';
         querySelectorAll('.socket-btn').classes.remove('disabled');
+        closeAlert();
     };
     onSocketDisconnected = () {
         socketInfo.innerHtml = "Client Disconnected";
-        if (isUpdating) {
-            socketInfo.innerHtml = "Reconnecting...";
-            new Future.delayed(const Duration(seconds: 1), connectToClient);
-        }
+        closeAlert();
         querySelectorAll('.requires-socket').style.display = 'none';
         querySelectorAll('.socket-btn').classes.add('disabled');
         if (currentPage == "editor") {
             switchPage('home');
         }
     };
+    onSocketInitialized = (var directory, var version) async {
+        bool valid = false;
+        for (var v in validVersions) {
+            if (version.startsWith(v)) valid = true;
+        }
+        if (!valid) {
+            socketInfo.innerHtml = "Updating...";
+            requestUpdate();
+        }
+    };
     socketInfo.innerHtml = "Loading...";
-    querySelector('.socket-reconnect').onClick.listen((e)=>connectToClient());
-    querySelector('.socket-update').onClick.listen((e){
-        isUpdating = true;
-        socketInfo.innerHtml = "Updating...";
-        requestUpdate();
-    });
     connectBackground();
 }
 
@@ -225,6 +234,8 @@ String formatTime(int millis) {
     return dateformat.format(new DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
+var listener1, listener2, listener3;
+
 loadSubmissions(Assignment assign, {submissions: null}) async {
     if (submissions == null) {
         submissions = await api.getSubmissions(assign.course, assign.id);
@@ -296,16 +307,22 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
         });
         sidebar.append(item);
     }
-    querySelector('.download-subm').onClick.listen((e) async {
+    if (listener1 != null) listener1.cancel();
+    if (listener2 != null) listener2.cancel();
+    if (listener3 != null) listener3.cancel();
+    listener1 = querySelector('.download-subm').onClick.listen((e) async {
         alert('Saving submissions...', 'info');
         await saveSubmissions(assign.downloadCode, directory, submissions);
         alert('Submissions downloaded to $clientDirectory/$directory.', 'success');
         canBatchGrade = true;
     });
-    querySelector('.batch-grade').onClick.listen((e) async {
+    listener2 = querySelector('.batch-grade').onClick.listen((e) async {
         if (canBatchGrade) {
+            var oldLog = onSocketLog;
+            onSocketLog = (str) => alert(str, 'info');
             alert('Grading submissions...', 'info');
             var results = await batchGrade(directory);
+            onSocketLog = oldLog;
             await writeFile('$directory/results.json', JSON.encode(results));
             loadSubmissions(assign, submissions: submissions);
             alert('Submissions graded.', 'success');
@@ -313,7 +330,7 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
             alert('You must download submissions before grading them.');
         }
     });
-    querySelector('.download-batch').onClick.listen((e) async {
+    listener3 = querySelector('.download-batch').onClick.listen((e) async {
         alert('Saving submissions...', 'info');
         await saveSubmissions(assign.downloadCode, directory, submissions);
         canBatchGrade = true;
@@ -322,9 +339,6 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
         await writeFile('$directory/results.json', JSON.encode(results));
         loadSubmissions(assign, submissions: submissions);
         alert('Submissions downloaded and graded.', 'success');
-    });
-    querySelector('.delete-subm').onClick.listen((e) async {
-        // TODO Add deletion API
     });
     switchPage('submissions');
 }
@@ -409,9 +423,6 @@ alert(String message, [String type = 'danger']) {
     elem.classes = ['alert', 'alert-dismissible', 'alert-$type'];
     elem.style.display = 'block';
     querySelector('.alert-text').innerHtml = message;
-    querySelector('.alert-close').onClick.listen((e){
-        elem.style.display = 'none'; 
-    });
 }
 
 closeAlert() {
@@ -527,7 +538,8 @@ registerCourse([String id, bool updating = false]) {
         }
     }
     Modal modal = Modal.wire(element);
-    querySelector("#registerCourseButton").onClick.listen((e) async {
+    var listener;
+    listener = querySelector("#registerCourseButton").onClick.listen((e) async {
         if (updating) {
             alert('Updating course...', 'info');
         } else alert('Registering course...', 'info');
@@ -537,6 +549,7 @@ registerCourse([String id, bool updating = false]) {
         Course course = new Course()..id = id..name = name..allowedStudents = allowedStudents;
         var result = await api.registerCourse(course);
         alert(result, 'success');
+        listener.cancel();
         await findCourses(id);
         modal.hide();
     });
@@ -631,7 +644,8 @@ createAssignment([Assignment current]) {
         deadline.value = now.add(new Duration(days: 7)).toIso8601String();
         close.value = now.add(new Duration(days: 14)).toIso8601String();
     }
-    button.onClick.listen((e) async {
+    var listener;
+    listener = button.onClick.listen((e) async {
         Assignment assign = new Assignment();
         if (!isValid(url.value)) {
             alert('Invalid template URL. Please use the URL of a valid Targets template.');
@@ -661,6 +675,7 @@ createAssignment([Assignment current]) {
                 }
             }
         }
+        listener.cancel();
         var result = await api.registerAssignment(assign);
         alert(result, 'success');
         loadAssignments();

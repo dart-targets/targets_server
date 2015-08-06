@@ -82,7 +82,7 @@ class Assignment extends Object with Comparable<Assignment> {
     String downloadCode;
     
     @override
-    int compareTo(Submission other) {
+    int compareTo(Assignment other) {
         // order by time (newest first)
         return other.deadline - deadline;
     }

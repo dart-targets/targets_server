@@ -1,7 +1,6 @@
 import 'dart:html';
 import 'dart:async';
 import 'dart:js';
-import 'dart:convert';
 
 import 'package:targets_server/client_api.dart' as api;
 import 'package:targets_server/models.dart';
@@ -43,6 +42,14 @@ loadUserInfo() async {
 
 initUI() async {
     switchPage('home');
+    querySelector('.socket-reconnect').onClick.listen((e)=>connectToClient());
+    querySelector('.socket-update').onClick.listen((e){
+        querySelector('.socket-info').innerHtml = 'Updating...';
+        requestUpdate();
+    });
+    querySelector('.alert-close').onClick.listen((e){
+        elem.style.display = 'none'; 
+    });
     connectToClient();
     for (var page in pages) {
         querySelector('.tab-$page').onClick.listen((e)=>switchPage(page));
@@ -56,20 +63,17 @@ initUI() async {
 
 connectToClient() {
     var socketInfo = querySelector('.socket-info');
-    bool isUpdating = false;
     onSocketConnected = () {
         loadEditor();
         socketInfo.innerHtml = "Client Connected";
         querySelectorAll('.requires-socket').style.display = 'block';
         querySelectorAll('.socket-btn').classes.remove('disabled');
+        closeAlert();
         reloadAssignments();
     };
     onSocketDisconnected = () {
         socketInfo.innerHtml = "Client Disconnected";
-        if (isUpdating) {
-            socketInfo.innerHtml = "Reconnecting...";
-            new Future.delayed(const Duration(seconds: 1), connectToClient);
-        }
+        closeAlert();
         querySelectorAll('.requires-socket').style.display = 'none';
         querySelectorAll('.socket-btn').classes.add('disabled');
         if (currentPage == "editor") {
@@ -77,13 +81,17 @@ connectToClient() {
         }
         reloadAssignments();
     };
+    onSocketInitialized = (var directory, var version) async {
+        bool valid = false;
+        for (var v in validVersions) {
+            if (version.startsWith(v)) valid = true;
+        }
+        if (!valid) {
+            socketInfo.innerHtml = 'Updating...';
+            requestUpdate();
+        }
+    };
     socketInfo.innerHtml = "Loading...";
-    querySelector('.socket-reconnect').onClick.listen((e)=>connectToClient());
-    querySelector('.socket-update').onClick.listen((e){
-        isUpdating = true;
-        socketInfo.innerHtml = "Updating...";
-        requestUpdate();
-    });
     connectBackground();
 }
 
@@ -106,7 +114,9 @@ reloadAssignments() async {
         } else querySelector('.assignments').innerHtml = "Assignments will appear here once your teacher posts them.";
         return;
     }
-    directoryTree = await getDirectoryTree();
+    if (socketConnected) {
+        directoryTree = await getDirectoryTree();
+    }
     var container = querySelector('.assignments');
     container.innerHtml = "";
     for (var assign in assignments) {
@@ -160,7 +170,7 @@ Element makeAssignment(Assignment assign) {
         footer.style.position = 'relative';
         if (directoryTree.containsKey(assign.id)) {
             var test = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-left']..innerHtml = 'Run Tests';
-            var submit = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-right']..innerHtml = 'Submit Assignment';
+            var submit = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-right']..innerHtml = 'Submit';
             test.onClick.listen((e){
                 testAssignment(assign.id);
             });
@@ -231,7 +241,7 @@ submitAssignment(Assignment assign) async {
     var listener;
     listener = querySelector('#uploadButton').onClick.listen((e) async {
         listener.cancel();
-        var note = querySelector('#inputNote').value;
+        var note = (querySelector('#inputNote') as InputElement).value;
         uploadModal.hide();
         alert('Uploading submission...', 'info');
         var validateModal = Modal.wire(querySelector('#validateModal'));
@@ -327,9 +337,6 @@ alert(String message, [String type = 'danger']) {
     elem.classes = ['alert', 'alert-dismissible', 'alert-$type'];
     elem.style.display = 'block';
     querySelector('.alert-text').innerHtml = message;
-    querySelector('.alert-close').onClick.listen((e){
-        elem.style.display = 'none'; 
-    });
 }
 
 closeAlert() {
