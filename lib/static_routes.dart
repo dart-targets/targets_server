@@ -19,6 +19,10 @@ consoleBlocker() {
     } else app.chain.next();
 }
 
+@app.Route('/')
+@app.Route('')
+homeRedirect() => app.redirect('/console/');
+
 @app.Route('/console/')
 consolePage() {
     if (login.isStudent()) {

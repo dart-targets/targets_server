@@ -5,40 +5,101 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/dartboard.png" type="image/png" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="563738534627-jmcuf5en3b51a6oe7k40ruid2i58hp1l.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <link href='http://fonts.googleapis.com/css?family=Roboto|Montserrat:700' rel='stylesheet' type='text/css'>
+    <script src="https://apis.google.com/js/platform.js" async defer onload='document.getElementById("github").style.display = "block"'></script>
     <title>Targets Console</title>
     <style>
-        .button {
-            padding: 4px;
-            width: 200px;
-            border-radius: 4px;
-            background: #57f;
-            color: #fff;
-            text-decoration: none;
-            display: block;
-            text-align: center;
+        body {
+            font-family: Roboto, sans-serif;
+            background: rgba(0, 144, 136, 0.15);
+            color: #222;
         }
-        .button:hover {
-            background: #35d;
+        .button {
+            text-decoration: none;
+            display: none;
+        }
+        .icon {
+            display: block;
+            font-size: 28px;
+            padding: 4px;
+            padding-left: 6px;
+            position: absolute;
+            color: #fff;
+            left: 0;
+            top: 0;
+        }
+        
+        .logo {
+            height: 120px;
+        }
+        
+        .contents {
+            position: absolute;
+            width: 100%;
+            top: 45%;
+            left: 0;
+            margin-top: -150px;
+        }
+        
+        .header {
+            font-family: Montserrat;
+            font-weight: 700;
+            font-size: 60px;
+            line-height: 120px;
+            text-align: center;
+            width: 100%;
+        }
+        .title {
+            vertical-align: 40px;
+            padding-left: 16px;
+        }
+        .text {
+            font-size: 16pt;
+            text-align: center;
+            padding: 8px;
+        }
+        .buttons {
+            width: 100%;
+        }
+        .left-button {
+            float: left;
+            margin-left: calc(50% - 180px);
+        }
+        .right-button {
+            float: right;
+            margin-right: calc(50% - 180px);
         }
     </style>
 </head>
 <body>
-    This page is still under construction<br>
-    <br>
-    <b>Students</b>
-    <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark">Login with Google</div>
-    <br>
-    <b>Teachers</b>
-    <a href='/authflow/github' class='button'>Login with GitHub</a>
+    <div class='contents'>
+    <div class='header'>
+        <img src='/dartboard.png' class='logo'></img>
+        <span class='title'>Targets</span>
+    </div>
+    <div class='buttons'>
+        <div class='left-button'>
+            <div class='text'>Students</div>
+            <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark"></div>
+        </div>
+        <div class='right-button'>
+            <div class='text'>Teachers</div>
+            <a id='github' href='/authflow/github' class='button'>
+                <div style="height:36px;width:120px;" class="abcRioButton abcRioButtonDarkGray"><div class="abcRioButtonContentWrapper"><div style="margin:6px 0 0 6px;" class="abcRioButtonIcon"><div style="width:22px;height:22px;" class="abcRioButtonSvgImageWithFallback abcRioButtonIconImage abcRioButtonIconImage20">
+                <i class="fa fa-github icon"></i></div></div><span style="font-size:13px;line-height:34px;" class="abcRioButtonContents"><span id="not_signed_in16ezvriw1s9">Sign in</span><span id="connected16ezvriw1s9" style="display:none">Signed in</span></span></div></div>
+            </a>
+        </div>
+    </div>
     <form id='googleForm' style='display:none' action='/login/google' method='post'>
         <input type='text' name='id_token' id='googleToken'/>
         <input type='text' name='name' id='googleName'/>
         <input type='text' name='email' id='googleEmail'/>
         <input type='text' name='image' id='googleImage'/>
     </form>
+    </div>
 <script>
     function onSignIn(googleUser) {
         var id_token = googleUser.getAuthResponse().id_token;
@@ -57,7 +118,6 @@
             form.submit(); 
         });
     };
-    
 </script>
 </body>
 </html>
