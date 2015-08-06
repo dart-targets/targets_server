@@ -18,10 +18,10 @@ dependencies:
     redstone_mapper: ^0.1.13
     redstone_mapper_pg:
         git:
-            git@github.com:dart-targets/redstone_mapper_pg.git
+            https://github.com/dart-targets/redstone_mapper_pg.git
     tree_component:
         git:
-            git@github.com:dart-targets/tree_component.git
+            https://github.com/dart-targets/tree_component.git
     bootjack: ^0.6.5+3
     intl: ^0.12.4+1
 transformers:

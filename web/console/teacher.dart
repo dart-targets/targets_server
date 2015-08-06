@@ -334,8 +334,11 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
         alert('Saving submissions...', 'info');
         await saveSubmissions(assign.downloadCode, directory, submissions);
         canBatchGrade = true;
+        var oldLog = onSocketLog;
+        onSocketLog = (str) => alert(str, 'info');
         alert('Grading submissions...', 'info');
         var results = await batchGrade(directory);
+        onSocketLog = oldLog;
         await writeFile('$directory/results.json', JSON.encode(results));
         loadSubmissions(assign, submissions: submissions);
         alert('Submissions downloaded and graded.', 'success');
