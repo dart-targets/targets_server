@@ -48,7 +48,7 @@ initUI() async {
         requestUpdate();
     });
     querySelector('.alert-close').onClick.listen((e){
-        elem.style.display = 'none'; 
+        querySelector('.alert').style.display = 'none'; 
     });
     connectToClient();
     for (var page in pages) {
