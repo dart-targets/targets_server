@@ -18,7 +18,7 @@ PostgreSql get db => app.request.attributes.dbConn;
 /// Keeps session alive
 @app.Route("/ping")
 ping() {
-    print("ping")
+    print("ping");
     return "pong";
 }
 
