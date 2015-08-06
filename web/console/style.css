@@ -250,6 +250,10 @@
     margin-right: 0;
 }
 
+.btn-course {
+    width: 100%;
+}
+
 @media(max-width:540px) {
     .logo, .user-image{
         display: none !important;

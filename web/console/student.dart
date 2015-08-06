@@ -100,6 +100,12 @@ loadAssignments() async {
 }
 
 reloadAssignments() async {
+    if (assignments.length == 0) {
+        if (student.courses.length == 0) {
+            querySelector('.assignments').innerHtml = "You aren't enrolled in any courses yet. Click the button in the bottom right to enroll.";
+        } else querySelector('.assignments').innerHtml = "Assignments will appear here once your teacher posts them.";
+        return;
+    }
     directoryTree = await getDirectoryTree();
     var container = querySelector('.assignments');
     container.innerHtml = "";
@@ -330,8 +336,33 @@ closeAlert() {
     querySelector('.alert').style.display = 'none';
 }
 
-enroll() {
-    // TODO - Add course enrollment
+enroll() async {
+    Modal modal = Modal.wire(querySelector('#enrollModal'));
+    var group = querySelector('.enroll-group');
+    group.innerHtml = "";
+    List<Course> courses = await api.getCourses();
+    int count = 0;
+    for (Course course in courses) {
+        if (!student.courses.contains(course.id)) {
+            count++;
+            var button = new ButtonElement()..classes = ['btn', 'btn-success', 'btn-flat', 'btn-course'];
+            button.innerHtml = '${course.name} (${course.id})';
+            button.onClick.listen((e) async {
+                modal.hide();
+                var result = await api.enrollStudent(course.id, userInfo['email']);
+                alert(result, 'success');
+                loadAssignments();
+            });
+            group.append(button);
+        }
+    }
+    if (count == 0 && courses.length == 0) {
+        alert('No courses available to enroll in.');
+    } else if (count == 0) {
+        alert("You're already enrolled in all courses available to you.");
+    } else {
+        modal.show();
+    }
 }
 
 switchPage(String page) {

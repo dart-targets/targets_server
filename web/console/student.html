@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Targets Console</title>
+    <link rel="shortcut icon" href="/dartboard.png" type="image/png" />
     <link rel="stylesheet" href="/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.7/styles/googlecode.min.css">
@@ -103,6 +104,22 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success btn-raised" id="validateButton">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="enrollModal" tabindex="-1" role="dialog" aria-labelledby="enrollLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="enrollLabel">Enroll in a Course</h4>
+            </div>
+            <div class="modal-body">
+                <div>Select a course below to enroll.</div>
+                <div class="enroll-group">
+                </div>
             </div>
         </div>
     </div>

@@ -28,7 +28,7 @@ loadEditor(Element element, {whenDone: null}) async {
     editElem.classes.add('editor-ace');
     element.append(editElem);
     editor = ace.edit(editElem);
-    editor.theme = new ace.Theme('ace/theme/monokai');
+    editor.theme = new ace.Theme('ace/theme/chrome');
     var tree = await buildTree();
     tree.buildAt(sidebar);
     element.style.display = 'block';
@@ -60,6 +60,7 @@ buildTree() async {
 
 parseFiles(var files, String path, TreeNode parent) {
     for (var key in files.keys) {
+        if (disallowedFile(key)) continue;
         var node = parent.createChild(key, '$path/$key');
         if (files[key] is Map) {
             parseFiles(files[key], '$path/$key', node);
@@ -67,6 +68,16 @@ parseFiles(var files, String path, TreeNode parent) {
             node.listener = new TreeListener();
         }
     }
+}
+
+bool disallowedFile(String filename) {
+    if (filename.startsWith('.')) return true;
+    var disallowed = ['class', 'png', 'jpeg', 'jpg', 'bmp', 'zip', 'tif', 
+        'tiff', 'pdf', 'psd', 'gif'];
+    for (var d in disallowed) {
+        if (filename.endsWith('.$d')) return true;
+    }
+    return false;
 }
 
 class TreeListener extends TreeNodeListener {

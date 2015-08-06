@@ -97,7 +97,9 @@ courseAccess(Course course) {
     if (course.allows(student)) {
         // prevents students from reading enrolled list
         // may change later
-        course.enrolledStudents = null;
+        if (course.enrolledStudents.contains(student.email)) {
+            course.enrolledStudents = [student.email];
+        } else course.enrolledStudents = [];
         return READ_ACCESS;
     }
     return NO_ACCESS;

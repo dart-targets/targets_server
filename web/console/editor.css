@@ -6,10 +6,10 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 280px;
+    width: 290px;
     height: 100%;
-    background: #444;
-    color: #fff;
+    background: #eee;
+    color: #222;
     font-size: 10pt;
     overflow-y: auto;
 }
@@ -17,33 +17,33 @@
 .editor-ace {
     position: absolute;
     top: 30px;
-    left: 280px;
-    width: calc(100% - 280px);
+    left: 290px;
+    width: calc(100% - 290px);
     height: calc(100% - 30px);
 }
 
 .editor-tabs {
-    background: #444;
+    background: #eee;
     position: absolute;
     top: 0;
-    left: 280px;
-    width: calc(100% - 280px);
+    left: 290px;
+    width: calc(100% - 290px);
     height: 30px;
-    color: #ccc;
+    color: #222;
 }
 
 .editor-tab {
     display: inline-block;
     border-bottom: 4px solid #333;
-    height: 26px;
+    height: 30px;
     position: relative;
 }
 
 .editor-current-tab {
     font-weight: 700;
     border-bottom: 4px solid #57f;
-    height: 26px;
-    color: #fff;
+    height: 30px;
+    color: #222;
 }
 
 .editor-tab-unsaved {
