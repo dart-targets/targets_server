@@ -51,7 +51,7 @@ studentInfo(String email) async {
 addStudent(@Decode() Student student) async {
     // registration does not include any enrollment
     student.courses = [];
-    await requireWrite(student;)
+    await requireWrite(student);
     Student s = await studentInfo(student.email);
     if (s == null) {
         db.execute("insert into students (email, name, courses) "
