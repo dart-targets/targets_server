@@ -44,6 +44,10 @@
     padding: 8px 16px;
 }
 
+.loading {
+    display: none;
+}
+
 .page-home {
     overflow-y: auto;
 }
@@ -259,7 +263,7 @@
 }
 
 @media(max-width:540px) {
-    .logo, .user-image{
+    .logo, .spinner, .user-image{
         display: none !important;
     }
     
@@ -378,4 +382,40 @@
     .submission-controls {
         display: none;
     }
+}
+
+/* Loading Spinner */
+.spinner {
+    animation: rotator 1.8s linear infinite;
+    margin-left: -5px;
+    margin-top: -5px;
+}
+
+@keyframes rotator {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(270deg);
+  }
+}
+.path {
+  stroke-dasharray: 187;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation: dash 1.8s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 187;
+  }
+  50% {
+    stroke-dashoffset: 46.75;
+    transform: rotate(135deg);
+  }
+  100% {
+    stroke-dashoffset: 187;
+    transform: rotate(450deg);
+  }
 }

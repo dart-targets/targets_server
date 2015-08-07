@@ -18,7 +18,9 @@ Future<String> get(String path) async {
     }
     String url = apiRoot + path;
     try {
+        loading();
         var response = await HttpRequest.request(url);
+        loaded();
         if (response.status >= 300) return null;
         return response.responseText;
     } catch (ex) {
@@ -35,13 +37,25 @@ Future<String> post(String path, String data) async {
         'Content-Type': 'application/json'
     };
     try {
+        loading();
         var response = await HttpRequest.request(url, method: 'POST', 
                         mimeType:'application/json', requestHeaders: headers, sendData: data);
+        loaded();
         if (response.status >= 300) return null;
         return response.responseText;
     } catch (ex) {
         refresh();
     }
+}
+
+loading() {
+    querySelector('.loading').style.display = 'block';
+    querySelector('.loaded').style.display = 'none';
+}
+
+loaded() {
+    querySelector('.loaded').style.display = 'block';
+    querySelector('.loading').style.display = 'none';
 }
 
 void refresh() {

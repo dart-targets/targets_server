@@ -268,6 +268,7 @@ submitAssignment(Assignment assign) async {
             alert('Submitting...', 'info');
             var result = await api.validateSubmission(hash);
             alert(extractFormatTime(result), 'success');
+            loadSubmissions();
             return;
         }
     });
