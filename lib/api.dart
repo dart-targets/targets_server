@@ -15,13 +15,6 @@ part 'submission.dart';
 
 PostgreSql get db => app.request.attributes.dbConn;
 
-/// Keeps session alive
-@app.Route("/ping")
-ping() {
-    print("ping");
-    return "pong";
-}
-
 /// Gets info about logged in user, if any
 @app.Route("/user")
 userInfo() {

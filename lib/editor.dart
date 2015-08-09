@@ -14,11 +14,15 @@ var rootElement;
 
 var callback;
 
+var sidebar;
+
 loadEditor(Element element, {whenDone: null}) async {
+    TreeNodeComponent.ARROW_RIGHT = "<i class='arrow mdi-navigation-chevron-right'></i>&nbsp;";
+    TreeNodeComponent.ARROW_DOWN = "<i class='arrow mdi-navigation-expand-more'></i>&nbsp;";
     rootElement = element;
     callback = whenDone;
     ace.implementation = ACE_PROXY_IMPLEMENTATION;
-    var sidebar = new DivElement();
+    sidebar = new DivElement();
     sidebar.classes.add('editor-sidebar');
     element.append(sidebar);
     var tabBar = new DivElement();
@@ -29,7 +33,9 @@ loadEditor(Element element, {whenDone: null}) async {
     element.append(editElem);
     editor = ace.edit(editElem);
     editor.theme = new ace.Theme('ace/theme/chrome');
-    var tree = await buildTree();
+    var files = await getDirectoryTree();
+    var tree = buildTree(files);
+    lastFiles = files;
     tree.buildAt(sidebar);
     element.style.display = 'block';
     document.onKeyDown.listen((e) {
@@ -38,14 +44,44 @@ loadEditor(Element element, {whenDone: null}) async {
             saveFile();
         }
     });
+    window.onResize.listen((e)=>refreshTabs());
 }
 
-buildTree() async {
+var lastFiles = null;
+
+reloadTree() async {
     var files = await getDirectoryTree();
-    
+    if (!treesEqual(files, lastFiles)) {
+        var tree = buildTree(files);
+        sidebar.innerHtml = "";
+        tree.buildAt(sidebar);
+    }
+    lastFiles = files;
+}
+
+treesEqual(var treeA, var treeB) {
+    if (treeA is String && treeB is String) {
+        return true;
+    } else if (treeA is String || treeB is String) {
+        return false;
+    }
+    if (treeA.length != treeB.length) return false;
+    for (var key in treeA.keys) {
+        if (treeB.containsKey(key)) {
+            if (!treesEqual(treeA[key], treeB[key])) {
+                return false;
+            }
+        } else return false;
+    }
+    return true;
+}
+
+buildTree(var files) {
     var roots = [];
-    
-    for (var key in files.keys) {
+    var keys = [];
+    for (var key in files.keys) keys.add(key);
+    keys.sort();
+    for (var key in keys) {
         var root = new TreeNode.root(key, key);
         if (files[key] is Map) {
             parseFiles(files[key], key, root);
@@ -59,7 +95,10 @@ buildTree() async {
 }
 
 parseFiles(var files, String path, TreeNode parent) {
-    for (var key in files.keys) {
+    var keys = [];
+    for (var key in files.keys) keys.add(key);
+    keys.sort();
+    for (var key in keys) {
         if (disallowedFile(key)) continue;
         var node = parent.createChild(key, '$path/$key');
         if (files[key] is Map) {
@@ -162,7 +201,8 @@ int currentTab = 0;
 refreshTabs() {
     var tabBar = querySelectorAll(".editor-tabs")[0];
     tabBar.innerHtml = "";
-    int width = (tabBar.clientWidth / tabs.length).round();
+    if (tabs.length == 0) return;
+    int width = (tabBar.clientWidth / tabs.length).floor();
     for (int i = 0; i < tabs.length; i++) {
         Tab tab = tabs[i];
         tab.element.classes.clear();

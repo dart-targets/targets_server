@@ -20,6 +20,11 @@
 
 .navbar {
     user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: default;
     border-radius: 0;
     height: 60px;
     z-index: 10;
@@ -54,6 +59,10 @@
 
 .tab-editor, .tab-submissions {
     display: none;
+}
+
+.tab {
+    cursor: pointer;
 }
 
 .assignment {
@@ -147,6 +156,12 @@
 .submission {
     font-size: 11pt;
     padding: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
 }
 
 .subm-btn {
@@ -184,6 +199,7 @@
 
 .filename {
     margin-top: 16px;
+    font-weight: 700;
 }
 
 .submission:hover {

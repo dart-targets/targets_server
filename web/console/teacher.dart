@@ -205,22 +205,26 @@ Element makeAssignment(Assignment assign) {
     body.append(new DivElement()..innerHtml="<b>Deadline:</b>&nbsp;$deadline");
     body.append(new DivElement()..innerHtml="<b>Close:</b>&nbsp;$close");
     var template = new DivElement()..innerHtml="<b>Template:</b>&nbsp;";
-    template.append(new AnchorElement()..target='_blank'..href=assign.githubUrl..innerHtml=assign.downloadCode);
+    template.append(new AnchorElement()..classes=['text-$type']..target='_blank'..href=assign.githubUrl..innerHtml=assign.downloadCode);
     body.append(template);
     //body.append(new DivElement()..innerHtml="<b>Note:</b>&nbsp;${assign.note}");
     item.append(heading);
     item.append(body);
     var footer = new DivElement()..classes = ['panel-footer'];
     footer.style.position = 'relative';
+    var btnType = 'btn-$type';
     if (isCourseAdmin(currentCourse.id)) {
-        var edit = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-left']..innerHtml = 'Edit Assignment';
-        var view = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-right']..innerHtml = 'View Submissions';
+        var editClasses = ['btn', 'btn-flat', btnType, 'panel-btn-left'];
+        var viewClasses = ['btn', 'btn-flat', btnType, 'panel-btn-right'];
+        var edit = new ButtonElement()..classes = editClasses..innerHtml = 'Edit Assignment';
+        var view = new ButtonElement()..classes = viewClasses..innerHtml = 'View Submissions';
         view.onClick.listen((e) => loadSubmissions(assign));
         edit.onClick.listen((e) => createAssignment(assign));
         footer.append(edit);
         footer.append(view);
     } else {
-        var view = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn']..innerHtml = 'View Submissions';
+        var viewClasses = ['btn', 'btn-flat', btnType, 'panel-btn'];
+        var view = new ButtonElement()..classes = viewClasses..innerHtml = 'View Submissions';
         view.onClick.listen((e) => loadSubmissions(assign));
         footer.append(view);
     }
@@ -298,11 +302,11 @@ loadSubmissions(Assignment assign, {submissions: null}) async {
             }
             for (String filename in subm.files.keys) {
                 String data = subm.files[filename];
-                data = data.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+                String lang = filename.split('.').last;
+                String highlighted = context['hljs'].callMethod('highlight', [lang, data])['value'];
                 contents.append(new DivElement()..classes=['filename']..innerHtml=filename);
-                var pre = new PreElement()..innerHtml = data;
+                var pre = new PreElement()..innerHtml = highlighted;
                 contents.append(pre);
-                context['hljs'].callMethod('highlightBlock', [pre]);
             }
         });
         sidebar.append(item);
@@ -493,6 +497,9 @@ switchPage(String page) {
     currentPage = page;
     if (page == 'submissions') {
         querySelector('.tab-submissions').style.display = 'block';
+    }
+    if (page == 'editor') {
+        editor.reloadTree();
     }
     querySelectorAll('.page').style.display = 'none';
     querySelector('.page-$page').style.display = 'block';

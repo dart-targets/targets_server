@@ -169,8 +169,17 @@ Element makeAssignment(Assignment assign) {
         var footer = new DivElement()..classes = ['panel-footer'];
         footer.style.position = 'relative';
         if (directoryTree.containsKey(assign.id)) {
-            var test = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-left']..innerHtml = 'Run Tests';
-            var submit = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn-right']..innerHtml = 'Submit';
+            var testClasses = ['btn', 'btn-flat', 'btn-$type'];
+            var submitClasses = ['btn', 'btn-flat', 'btn-$type'];
+            if (type == 'danger' || type == 'primary') {
+                testClasses.add('panel-btn');
+                submitClasses.add('hide');
+            } else {
+                testClasses.add('panel-btn-left');
+                submitClasses.add('panel-btn-right');
+            }
+            var test = new ButtonElement()..classes = testClasses..innerHtml = 'Run Tests';
+            var submit = new ButtonElement()..classes = submitClasses..innerHtml = 'Submit';
             test.onClick.listen((e){
                 testAssignment(assign.id);
             });
@@ -180,7 +189,8 @@ Element makeAssignment(Assignment assign) {
             footer.append(test);
             footer.append(submit);
         } else {
-            var download = new ButtonElement()..classes = ['btn', 'btn-flat' 'btn-$type', 'panel-btn']..innerHtml = 'Download Assignment';
+            var downloadClasses = ['btn', 'btn-flat', 'btn-$type', 'panel-btn'];
+            var download = new ButtonElement()..classes = downloadClasses..innerHtml = 'Download Assignment';
             download.onClick.listen((e) async {
                 var oldLog = onSocketLog;
                 onSocketLog = (str) => alert(str, 'info');
@@ -325,11 +335,11 @@ loadSubmission(Submission subm, Element elem) {
     }
     for (String filename in subm.files.keys) {
         String data = subm.files[filename];
-        data = data.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        String lang = filename.split('.').last;
+        String highlighted = context['hljs'].callMethod('highlight', [lang, data])['value'];
         elem.append(new DivElement()..classes=['filename']..innerHtml=filename);
-        var pre = new PreElement()..innerHtml = data;
+        var pre = new PreElement()..innerHtml = highlighted;
         elem.append(pre);
-        context['hljs'].callMethod('highlightBlock', [pre]);
     }
 }
 
@@ -376,6 +386,9 @@ enroll() async {
 switchPage(String page) {
     if (currentPage != page) {
         closeAlert();
+    }
+    if (page == 'editor') {
+        editor.reloadTree();
     }
     currentPage = page;
     querySelectorAll('.page').style.display = 'none';
