@@ -252,7 +252,7 @@ addActions(Tab tab) {
         });
         run3Button.onClick.listen((e){
             runOpenFile(tab.filename, 'python3');
-        })
+        });
         actions.append(run2Button);
         actions.append(run3Button);
     }
