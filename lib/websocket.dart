@@ -33,6 +33,8 @@ connectBackground({server: 'ws://localhost.codetargets.com:7620'}) {
             onSocketInitialized(clientDirectory, clientVersion);
         } else if (msg['type'] == 'error') {
             onSocketError(msg['exception']);
+        } else if (msg['type'] == 'run-file-output') {
+            onRunFileOutput(msg['data']);
         }
     });
 
@@ -91,9 +93,9 @@ call(msg) async {
 }
 
 sanitize(String msg) {
-    msg = msg.replaceAll("\u001b[0;31m", "<span style='color:#ff4444'>");
-    msg = msg.replaceAll("\u001b[0;32m", "<span style='color:#44ff44'>");
-    msg = msg.replaceAll("\u001b[0;36m", "<span style='color:#57f'>");
+    msg = msg.replaceAll("\u001b[0;31m", "<span class='red'>");
+    msg = msg.replaceAll("\u001b[0;32m", "<span class='green'>");
+    msg = msg.replaceAll("\u001b[0;36m", "<span class='blue'>");
     msg = msg.replaceAll("\u001b[0;0m", "</span>");
     return msg;
 }
@@ -171,3 +173,19 @@ batchGrade(String directory) async {
     });
     return resp['results'];
 }
+
+runFile(String file, String runWith, String args) async {
+    var resp = await call({
+        'command': 'run-file',
+        'file': file,
+        'run': runWith,
+        'args': args
+    });
+    if (resp.containsKey('error')) return resp['error'];
+    return null;
+}
+
+var onRunFileOutput = (List<int> data) => null;
+
+runFileInput(List<int> data) => send({'command': 'run-file-input', 'data': data});
+runFileCancel() => send({'command': 'run-file-cancel'});

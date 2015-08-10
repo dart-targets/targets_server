@@ -1,4 +1,6 @@
 import 'dart:html';
+import 'dart:convert';
+import 'dart:async';
 
 import 'package:ace/ace.dart' as ace;
 import 'package:ace/proxy.dart';
@@ -62,8 +64,10 @@ reloadTree() async {
 treesEqual(var treeA, var treeB) {
     if (treeA is String && treeB is String) {
         return true;
-    } else if (treeA is String || treeB is String) {
-        return false;
+    } else if (treeA is String) {
+        return disallowedFile(treeA);
+    } else if (treeB is String) {
+        return disallowedFile(treeB);
     }
     if (treeA.length != treeB.length) return false;
     for (var key in treeA.keys) {
@@ -233,6 +237,101 @@ addActions(Tab tab) {
         actions.append(saveButton);
         return;
     }
+    var ext = tab.filename.split('.').last;
+    if (ext == 'java' || ext == 'dart') {
+        var runButton = new ButtonElement()..classes = ['btn', 'btn-flat', 'btn-inverse', 'btn-xs']..innerHtml = "Run";
+        runButton.onClick.listen((e){
+            runOpenFile(tab.filename, ext);
+        });
+        actions.append(runButton);
+    } else if (ext == 'py') {
+        var run2Button = new ButtonElement()..classes = ['btn', 'btn-flat', 'btn-inverse', 'btn-xs']..innerHtml = "Run Python 2";
+        var run3Button = new ButtonElement()..classes = ['btn', 'btn-flat', 'btn-inverse', 'btn-xs']..innerHtml = "Run Python 3";
+        run2Button.onClick.listen((e){
+            runOpenFile(tab.filename, 'python2');
+        });
+        run3Button.onClick.listen((e){
+            runOpenFile(tab.filename, 'python3');
+        })
+        actions.append(run2Button);
+        actions.append(run3Button);
+    }
+}
+
+runOpenFile(String filename, String type) {
+    var wrapper = new DivElement()..classes = ['run-output-wrapper'];
+    wrapper.appendHtml("<span class='run-msg'>Type arguments, then press enter to execute</span>");
+    var close = new ButtonElement()..classes = ['btn', 'btn-default', 'btn-danger', 'run-btn', 'btn-sm']..innerHtml = "Exit";
+    close.onClick.listen((e){
+        runFileCancel();
+        wrapper.style.display = 'none';
+    });
+    wrapper.append(close);
+    var modal = new DivElement()..classes = ['run-output-modal'];
+    var pre = new PreElement();
+    //var testDir = new SpanElement()..classes = ['run-directory']..innerHtml = dir;
+    wrapper.append(modal);
+    modal.append(pre);
+    var file = filename.split('/').last;
+    if (filename.contains('\\')) file = filename.split('\\').last;
+    var runfile = file;
+    if (type == 'java') {
+        runfile = runfile.split('.').first;
+    }
+    pre.appendHtml("\$ $type $runfile ");
+    wrapper.onClick.listen((e){
+        if (close.contains(e.target)) return;
+        if (currentInput != null) currentInput.focus(); 
+    });
+    var argsInput = new InputElement()..classes = ['run-input'];
+    currentInput = argsInput;
+    pre.append(argsInput);
+    argsInput.onKeyPress.listen((e) async {
+        if (e.keyCode == KeyCode.ENTER) {
+            wrapper.querySelector('.run-msg').innerHtml = "Running $filename...";
+            var args = argsInput.value.trim();
+            pre.innerHtml = pre.text + args + '\n';
+            repositionInput(pre);
+            var error = await runFile(filename, type, args);
+            if (error != null) {
+                pre.append(error);
+            }
+            onRunFileOutput = (List<int> data) => null;
+        }
+    });
+    wrapper.style.display = 'block';
+    new Future.delayed(new Duration(milliseconds: 100)).then(([e])=>argsInput.focus());
+    onRunFileOutput = (List<int> data) {
+        pre.appendHtml(process(data));
+        var existing = currentInput.value;
+        pre.innerHtml = pre.text;
+        repositionInput(pre, existing);
+    };
+    querySelector('body').append(wrapper);
+}
+
+var currentInput;
+
+repositionInput(PreElement pre, [String existing=""]) {
+    var input = new InputElement()..classes = ['run-input'];
+    input.value = existing;
+    currentInput = input;
+    pre.append(input);
+    input.focus();
+    input.onKeyPress.listen((e) {
+        if (e.keyCode == KeyCode.ENTER) {
+            var data = input.value + '\n';
+            var codes = UTF8.encode(data);
+            runFileInput(codes);
+            pre.innerHtml = pre.text + data;
+            repositionInput(pre);
+        }
+    });
+}
+
+String process(List<int> data) {
+    var text = UTF8.decode(data);
+    return sanitize(text);
 }
 
 updateContents(Tab tab) {
