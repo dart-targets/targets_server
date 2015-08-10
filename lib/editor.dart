@@ -148,6 +148,9 @@ class TreeListener extends TreeNodeListener {
         var name = new SpanElement()..innerHtml = node.label;
         name.classes.add('editor-tab-name');
         tab.element.append(name);
+        var actions = new SpanElement();
+        actions.classes.add('editor-tab-actions');
+        tab.element.append(actions);
         var close = new SpanElement()..innerHtml = '&times;';
         close.classes.add('editor-tab-close');
         close.onClick.listen((e) {
@@ -207,14 +210,28 @@ refreshTabs() {
         Tab tab = tabs[i];
         tab.element.classes.clear();
         tab.element.classes.add('editor-tab');
+        tab.element.querySelector('.editor-tab-actions').innerHtml = "";
         if (currentTab == i) {
             tab.element.classes.add('editor-current-tab');
+            addActions(tab);
         }
         if (!tab.saved) {
             tab.element.classes.add('editor-tab-unsaved');
         }
         tab.element.style.width = '${width}px';
         tabBar.append(tab.element);
+    }
+}
+
+addActions(Tab tab) {
+    var actions = tab.element.querySelector('.editor-tab-actions');
+    if (!tab.saved) {
+        var saveButton = new ButtonElement()..classes = ['btn', 'btn-flat', 'btn-inverse', 'btn-xs']..innerHtml = "Save";
+        saveButton.onClick.listen((e){
+            saveFile();
+        });
+        actions.append(saveButton);
+        return;
     }
 }
 

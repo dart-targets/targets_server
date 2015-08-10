@@ -16,7 +16,7 @@ bool socketConnected = false;
 
 var validVersions = ['0.8', '0.9'];
 
-connectBackground({server: 'ws://localhost:7620'}) {
+connectBackground({server: 'ws://localhost.codetargets.com:7620'}) {
     socket = new WebSocket(server);
     socket.onOpen.listen((Event e) {
         socketConnected = true;

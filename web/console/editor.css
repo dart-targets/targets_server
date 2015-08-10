@@ -31,10 +31,10 @@
 
 .editor-ace {
     position: absolute;
-    top: 30px;
+    top: 40px;
     left: 290px;
     width: calc(100% - 290px);
-    height: calc(100% - 30px);
+    height: calc(100% - 40px);
 }
 
 .editor-tabs {
@@ -43,7 +43,7 @@
     top: 0;
     left: 290px;
     width: calc(100% - 290px);
-    height: 30px;
+    height: 40px;
     color: #222;
 }
 
@@ -51,35 +51,40 @@
     display: inline-block;
     border-bottom: 4px solid #aaa;
     color: #555;
-    height: 30px;
+    height: 40px;
     position: relative;
 }
 
 .editor-current-tab {
     border-bottom: 4px solid #57f;
-    height: 30px;
+    height: 40px;
     color: #222;
 }
 
-.editor-tab-unsaved {
+.editor-tab-unsaved .editor-tab-name {
     font-style: italic;
 }
 
 .editor-tab-name {
     font-size: 14px;
     margin-left: 8px;
-    margin-top: 6px;
+    margin-top: 11px;
     display: inline-block;
 }
 
 .editor-tab-close {
     position: absolute;
     right: 4px;
-    top: 3px;
+    top: 10px;
 }
 
 .editor-tab-close:hover {
     color: #57f;
+}
+
+.editor-tab-actions {
+    padding: 0;
+    margin-left: 4px;
 }
 
 .editor {

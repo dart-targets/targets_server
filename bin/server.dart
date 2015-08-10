@@ -22,13 +22,10 @@ main(raw_args) async {
     var dbManager = new PostgreSqlManager(uri);
     app.addPlugin(getMapperPlugin(dbManager));
     app.setupConsoleLog();
-    app.setUp();
     dbManager.getConnection().then((db)=>initDatabase(db));
     var requestServer = await HttpServer.bind(InternetAddress.ANY_IP_V4, int.parse(args['port']));
     requestServer.sessionTimeout = 8 * 60 * 60; // eight hour session lasts entire school day
-    await for (var request in requestServer) {
-        app.handleRequest(request);
-    }
+    app.serveRequests(requestServer);
 }
 
 ArgResults parseArgs(args) {
