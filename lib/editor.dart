@@ -86,6 +86,10 @@ buildTree(var files) {
     for (var key in files.keys) keys.add(key);
     keys.sort();
     for (var key in keys) {
+        if (filename = "Targets Console.app") continue;
+        if (filename = "targets_dependencies") continue;
+        if (filename = "Targets Console.bat") continue;
+        if (filename = "._Targets Console.app") continue;
         var root = new TreeNode.root(key, key);
         if (files[key] is Map) {
             parseFiles(files[key], key, root);
@@ -114,10 +118,6 @@ parseFiles(var files, String path, TreeNode parent) {
 }
 
 bool disallowedFile(String filename) {
-    if (filename = "Targets Console.app") return true;
-    if (filename = "targets_dependencies") return true;
-    if (filename = "Targets Console.bat") return true;
-    if (filename = "._Targets Console.app") return true;
     if (filename.startsWith('.')) return true;
     var disallowed = ['class', 'png', 'jpeg', 'jpg', 'bmp', 'zip', 'tif', 
         'tiff', 'pdf', 'psd', 'gif'];
