@@ -106,17 +106,18 @@ parseFiles(var files, String path, TreeNode parent) {
         if (disallowedFile(key)) continue;
         var node = parent.createChild(key, '$path/$key');
         if (files[key] is Map) {
-            if (key == "Targets Console.app") continue;
-            if (key == "targets_dependencies") continue;
             parseFiles(files[key], '$path/$key', node);
         } else {
-            if (key == "._Targets Console.app") continue;
             node.listener = new TreeListener();
         }
     }
 }
 
 bool disallowedFile(String filename) {
+    if (filename = "Targets Console.app") return true;
+    if (filename = "targets_dependencies") return true;
+    if (filename = "Targets Console.bat") return true;
+    if (filename = "._Targets Console.app") return true;
     if (filename.startsWith('.')) return true;
     var disallowed = ['class', 'png', 'jpeg', 'jpg', 'bmp', 'zip', 'tif', 
         'tiff', 'pdf', 'psd', 'gif'];
