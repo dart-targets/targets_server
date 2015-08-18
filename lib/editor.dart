@@ -106,8 +106,11 @@ parseFiles(var files, String path, TreeNode parent) {
         if (disallowedFile(key)) continue;
         var node = parent.createChild(key, '$path/$key');
         if (files[key] is Map) {
+            if (key == "Targets Console.app") continue;
+            if (key == "targets_dependencies") continue;
             parseFiles(files[key], '$path/$key', node);
         } else {
+            if (key == "._Targets Console.app") continue;
             node.listener = new TreeListener();
         }
     }
