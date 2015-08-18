@@ -86,10 +86,10 @@ buildTree(var files) {
     for (var key in files.keys) keys.add(key);
     keys.sort();
     for (var key in keys) {
-        if (filename = "Targets Console.app") continue;
-        if (filename = "targets_dependencies") continue;
-        if (filename = "Targets Console.bat") continue;
-        if (filename = "._Targets Console.app") continue;
+        if (filename == "Targets Console.app") continue;
+        if (filename == "targets_dependencies") continue;
+        if (filename == "Targets Console.bat") continue;
+        if (filename == "._Targets Console.app") continue;
         var root = new TreeNode.root(key, key);
         if (files[key] is Map) {
             parseFiles(files[key], key, root);
