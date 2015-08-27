@@ -298,6 +298,7 @@
     left: 0;
     top: 40px;
     height: calc(100% - 40px);
+    overflow: auto;
 }
 
 .run-input {

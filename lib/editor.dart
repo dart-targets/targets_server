@@ -86,10 +86,11 @@ buildTree(var files) {
     for (var key in files.keys) keys.add(key);
     keys.sort();
     for (var key in keys) {
-        if (filename == "Targets Console.app") continue;
-        if (filename == "targets_dependencies") continue;
-        if (filename == "Targets Console.bat") continue;
-        if (filename == "._Targets Console.app") continue;
+        if (key == "Targets Console.app") continue;
+        if (key == "targets_dependencies") continue;
+        if (key == "Targets Console.bat") continue;
+        if (key == "._Targets Console.app") continue;
+        if (disallowedFile(key)) continue;
         var root = new TreeNode.root(key, key);
         if (files[key] is Map) {
             parseFiles(files[key], key, root);
@@ -120,7 +121,7 @@ parseFiles(var files, String path, TreeNode parent) {
 bool disallowedFile(String filename) {
     if (filename.startsWith('.')) return true;
     var disallowed = ['class', 'png', 'jpeg', 'jpg', 'bmp', 'zip', 'tif', 
-        'tiff', 'pdf', 'psd', 'gif'];
+        'tiff', 'pdf', 'psd', 'gif', 'exe', 'bat'];
     for (var d in disallowed) {
         if (filename.endsWith('.$d')) return true;
     }
@@ -272,7 +273,7 @@ runOpenFile(String filename, String type) {
     });
     wrapper.append(close);
     var modal = new DivElement()..classes = ['run-output-modal'];
-    var pre = new PreElement();
+    var pre = new PreElement()..classes = ['run-output-text'];
     //var testDir = new SpanElement()..classes = ['run-directory']..innerHtml = dir;
     wrapper.append(modal);
     modal.append(pre);
@@ -282,7 +283,7 @@ runOpenFile(String filename, String type) {
     if (type == 'java') {
         runfile = runfile.split('.').first;
     }
-    pre.appendHtml("\$ $type $runfile ");
+    pre.appendText("\$ $type $runfile ");
     wrapper.onClick.listen((e){
         if (close.contains(e.target)) return;
         if (currentInput != null) currentInput.focus(); 
@@ -294,21 +295,28 @@ runOpenFile(String filename, String type) {
         if (e.keyCode == KeyCode.ENTER) {
             wrapper.querySelector('.run-msg').innerHtml = "Running $filename...";
             var args = argsInput.value.trim();
-            pre.innerHtml = pre.text + args + '\n';
+            var newText = pre.text + args + '\n';
+            pre.innerHtml = "";
+            pre.appendText(newText);
             repositionInput(pre);
             var error = await runFile(filename, type, args);
             if (error != null) {
-                pre.append(error);
+                pre.appendText(error);
             }
             onRunFileOutput = (List<int> data) => null;
+            wrapper.querySelector('.run-msg').innerHtml = "Execution complete.";
+        } else {
+            argsInput.size = argsInput.value.length;
         }
     });
     wrapper.style.display = 'block';
     new Future.delayed(new Duration(milliseconds: 100)).then(([e])=>argsInput.focus());
     onRunFileOutput = (List<int> data) {
-        pre.appendHtml(process(data));
+        pre.appendText(process(data));
         var existing = currentInput.value;
-        pre.innerHtml = pre.text;
+        var text = pre.text;
+        pre.innerHtml = "";
+        pre.appendText(text);
         repositionInput(pre, existing);
     };
     querySelector('body').append(wrapper);
@@ -327,11 +335,17 @@ repositionInput(PreElement pre, [String existing=""]) {
             var data = input.value + '\n';
             var codes = UTF8.encode(data);
             runFileInput(codes);
-            pre.innerHtml = pre.text + data;
+            var text = pre.text + data;
+            pre.innerHtml = "";
+            pre.appendText(text);
             repositionInput(pre);
+        } else {
+            input.size = input.value.length;
         }
     });
 }
+
+
 
 String process(List<int> data) {
     var text = UTF8.decode(data);
