@@ -349,7 +349,7 @@ repositionInput(PreElement pre, [String existing=""]) {
 
 String process(List<int> data) {
     var text = UTF8.decode(data);
-    return sanitize(text);
+    return sanitize(text, withColor: false);
 }
 
 updateContents(Tab tab) {

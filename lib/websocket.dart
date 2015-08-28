@@ -92,11 +92,18 @@ call(msg) async {
     return null;
 }
 
-sanitize(String msg) {
-    msg = msg.replaceAll("\u001b[0;31m", "<span class='red'>");
-    msg = msg.replaceAll("\u001b[0;32m", "<span class='green'>");
-    msg = msg.replaceAll("\u001b[0;36m", "<span class='blue'>");
-    msg = msg.replaceAll("\u001b[0;0m", "</span>");
+sanitize(String msg, {withColor: true}) {
+    if (withColor) {
+        msg = msg.replaceAll("\u001b[0;31m", "<span class='red'>");
+        msg = msg.replaceAll("\u001b[0;32m", "<span class='green'>");
+        msg = msg.replaceAll("\u001b[0;36m", "<span class='blue'>");
+        msg = msg.replaceAll("\u001b[0;0m", "</span>");
+    } else {
+        msg = msg.replaceAll("\u001b[0;31m", "");
+        msg = msg.replaceAll("\u001b[0;32m", "");
+        msg = msg.replaceAll("\u001b[0;36m", "");
+        msg = msg.replaceAll("\u001b[0;0m", "");
+    }
     return msg;
 }
 

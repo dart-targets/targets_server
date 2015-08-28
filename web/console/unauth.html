@@ -72,6 +72,20 @@
             float: right;
             margin-right: calc(50% - 180px);
         }
+        .footer {
+            position: absolute;
+            bottom: 8px;
+            left: 0px;
+            width: 100%;
+            text-align: center;
+        }
+        .download-link {
+            text-decoration: none;
+            color: #000;
+        }
+        .download-link:hover {
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +113,9 @@
         <input type='text' name='email' id='googleEmail'/>
         <input type='text' name='image' id='googleImage'/>
     </form>
+    </div>
+    <div class='footer'>
+        <a target='_blank' href="downloads.html" class="download-link">Download Targets</a>
     </div>
 <script>
     function onSignIn(googleUser) {
