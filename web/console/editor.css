@@ -96,3 +96,21 @@
     height: 100%;
     font-family: Roboto, sans-serif;
 }
+
+.rightclick-menu {
+    position: absolute;
+    display: block;
+}
+
+.rightclick-wrapper {
+    position: absolute;
+    z-index: 40;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+#delete-modal {
+    display: block;
+}

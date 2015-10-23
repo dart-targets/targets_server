@@ -1,6 +1,6 @@
 name: targets_server
 author: Jack Thakar <jack@jackthakar.com>
-homepage: http://github.com/dart-targets/targets-server
+homepage: http://github.com/dart-targets/targets_server
 version: 0.0.1
 environment:
     sdk: '>=1.0.0 <2.0.0'

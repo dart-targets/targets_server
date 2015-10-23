@@ -30,6 +30,7 @@
             color: #fff;
             left: 0;
             top: 0;
+            background: none;
         }
         
         .logo {
@@ -66,11 +67,11 @@
         }
         .left-button {
             float: left;
-            margin-left: calc(50% - 180px);
+            margin-left: calc(50% - 200px);
         }
         .right-button {
             float: right;
-            margin-right: calc(50% - 180px);
+            margin-right: calc(50% - 200px);
         }
         .footer {
             position: absolute;
@@ -86,6 +87,36 @@
         .download-link:hover {
             color: #333;
         }
+        
+        #google .abcRioButtonIcon {
+            background-color: transparent !important;
+        }
+        
+        #google path{
+            fill: #fff;
+        }
+        
+        #google path[fill='none']{
+            fill: none;
+        }
+        
+        @media(max-width:768px) {
+            .contents {top:64px;margin-top:0;}
+            .header{font-size: 40px; line-height: 75px;}
+            .title {vertical-align: 28px;}
+            .logo{height:75px;}
+            .buttons {
+                width: 170px;
+                left: calc(50% - 85px);
+                position: relative;
+            }
+            .left-button, .right-button {
+                display: block;
+                float: auto;
+                margin: 0;
+                padding-bottom: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -97,13 +128,14 @@
     <div class='buttons'>
         <div class='left-button'>
             <div class='text'>Students</div>
-            <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark"></div>
+            <div id="google" class='g-signin2' data-onsuccess="onSignIn" data-theme="dark" data-longtitle="true" data-width="170"></div>
         </div>
         <div class='right-button'>
             <div class='text'>Teachers</div>
             <a id='github' href='/authflow/github' class='button'>
-                <div style="height:36px;width:120px;" class="abcRioButton abcRioButtonDarkGray"><div class="abcRioButtonContentWrapper"><div style="margin:6px 0 0 6px;" class="abcRioButtonIcon"><div style="width:22px;height:22px;" class="abcRioButtonSvgImageWithFallback abcRioButtonIconImage abcRioButtonIconImage20">
-                <i class="fa fa-github icon"></i></div></div><span style="font-size:13px;line-height:34px;" class="abcRioButtonContents"><span id="not_signed_in16ezvriw1s9">Sign in</span><span id="connected16ezvriw1s9" style="display:none">Signed in</span></span></div></div>
+                <div style="height:36px;width:170px;background:#333333" class="abcRioButton abcRioButtonBlue"><div class="abcRioButtonContentWrapper"><div style="margin:6px 0 0 6px;background:none;" class="abcRioButtonIcon"><div style="width:22px;height:22px;" class="abcRioButtonSvgImageWithFallback abcRioButtonIconImage abcRioButtonIconImage20">
+                <i class="fa fa-github icon"></i></div></div><span style="font-size:13px;line-height:34px;" class="abcRioButtonContents"><span id="not_signed_in16ezvriw1s9">
+                    Sign in with GitHub</span><span id="connected16ezvriw1s9" style="display:none">Signed in</span></span></div></div>
             </a>
         </div>
     </div>

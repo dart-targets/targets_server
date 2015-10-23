@@ -188,7 +188,81 @@ class TreeListener extends TreeNodeListener {
     
     @override
     onCheckAction(TreeNode node) => null;
+    
+    @override
+    onRightClickAction(TreeNode node, MouseEvent e) async {
+        e.preventDefault();
+        var wrapper = new DivElement()..classes = ['rightclick-wrapper'];
+        var dropdown = new Element.ul()..classes = ['dropdown-menu', 'rightclick-menu'];
+        wrapper.append(dropdown);
+        var delete = new Element.li()..innerHtml = '<a>Delete</a>';
+        delete.children[0].onClick.listen((e) => deleteNode(node));
+        dropdown.append(delete);
+        querySelector('body').append(wrapper);
+        var listener = (e){
+            e.preventDefault();
+            if (!dropdown.contains(e.target)) {
+                wrapper.remove();
+            }
+        };
+        wrapper.onClick.listen(listener);
+        wrapper.onContextMenu.listen(listener);
+        dropdown.style.top = "${e.clientY}px";
+        dropdown.style.left = "${e.clientX}px";
+    }
 
+}
+
+/*
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <p>One fine body…</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+*/
+
+deleteNode(TreeNode node) {
+    var file = node.hasChildren ? "directory" : "file";
+    var html = """
+<div class="modal" id="delete-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close cancel-delete">×</button>
+                <h4 class="modal-title">Delete $file</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this $file? This can't be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default cancel-delete">Cancel</button>
+                <button type="button" class="btn btn-danger">Delete $file</button>
+            </div>
+        </div>
+    </div>
+</div>""";
+    querySelector('body').appendHtml(html);
+    var modal = querySelector('#delete-modal');
+    querySelector('body').onClick.listen((e){
+        if (!modal.contains(e.target)) {
+            modal.remove();
+        }
+    });
+    querySelectorAll('.cancel-delete').onClick.listen((e){
+        modal.remove();
+    });
 }
 
 closeEditor() {
